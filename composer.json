@@ -1,0 +1,34 @@
+{
+  "name": "simplicateca/craft-reference-field",
+  "description": "Reference Field Plugin for Craft CMS 4",
+  "type": "craft-plugin",
+  "keywords": ["craft", "plugin", "custom-field"],
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Simplicate",
+      "homepage": "https://simplicate.ca"
+    }
+  ],
+  "support": {
+    "email": "info@simplicate.ca",
+    "issues": "https://github.com/simplicateca/craft-reference-field/issues?state=open",
+    "source": "https://github.com/simplicateca/craft-reference-field",
+    "docs": "https://github.com/simplicateca/craft-reference-field/blob/master/README.md"
+  },
+  "require": {
+    "craftcms/cms": "^4.0.0",
+    "masterminds/html5": "^2.0",
+    "symfony/dom-crawler": "^6.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "simplicateca\\referencefield\\": "src/"
+    }
+  },
+  "extra": {
+    "name": "Reference Field",
+    "handle": "referencefield",
+    "class": "simplicateca\\referencefield\\ReferenceField"
+  }
+}

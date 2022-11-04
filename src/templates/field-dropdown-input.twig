@@ -1,0 +1,59 @@
+{% import "_includes/forms" as forms %}
+
+{% if not options %}
+	<p class="error">The reference file associated with this field is missing or corrupt. Contact your CMS admin.</p>
+{% endif %}
+
+{% if true or options %}
+	<div class="referenceField">
+		{{ forms.selectField({
+			class: 'referenceField',
+            errors: error ? ["The previously selected option is no longer available."] : false,
+            first: true ?? false,
+            id: id ~ namespacedId,
+			name: "#{name}[value]",
+			options: options ?? [],
+			required: true,
+            value: value ?? null,
+		}) }}
+
+		{% if references ?? null %}
+            <div class="referenceField__note">
+                {% for key, opts in references %}
+                    {% set display   = ( value == opts.value or (loop.first and not value) ) ? 'flex' : 'none' %}
+                    {% set note      = opts.reference.note      ??  opts.note      ?? null %}
+                    {% set image     = opts.reference.image     ??  opts.image     ?? null %}
+                    {% set video     = opts.reference.video     ??  opts.video     ?? null %}
+                    {% set html      = opts.reference.html      ??  opts.html      ?? null %}
+                    {% set title     = opts.reference.title     ??  opts.title     ?? null %}
+                    {% set moreUrl   = opts.reference.moreUrl   ??  opts.moreUrl   ?? null %}
+                    {% set moreLabel = opts.reference.moreLabel ??  opts.moreLabel ?? null %}
+                    
+                    {% if note %}
+                        <div
+                            data-value="{{opts.value}}"
+                            data-image="{{image|e('html_attr')}}"
+                            data-video="{{video|e('html_attr')}}"
+                            data-html="{{html|e('html_attr')}}"
+                            data-title="{{title|e('html_attr')}}"
+                            data-note="{{note|e('html_attr')}}"
+                            data-more-url="{{moreUrl|e('html_attr')}}"
+                            data-more-label="{{moreLabel|e('html_attr')}}"
+                            class="note"
+                            style="display: {{display}};"
+                            >                            
+                                <div class="icon">&#8627;</div>
+                                <div class="reftext">
+                                    {{note|raw}}
+
+                                    {% if image or video or html %}
+                                        <a href='{{moreUrl??'#'}}'>See reference →</a>
+                                    {% endif %}                                    
+                                </div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        {% endif %}
+	</div>
+{% endif %}

@@ -1,0 +1,15 @@
+{% import "_includes/forms" as forms %}
+
+{{ forms.autosuggestField({
+    label: "Reference JSON"|t('referencefield'),
+    instructions: "The relative path from your `cms/templates` directory"|t('referencefield'),
+    id: 'referenceFile',
+    class: ['ltr', 'template'],
+    name: 'referenceFile',
+    value: field.referenceFile ?? null,
+    required: true,
+    placeholder: "_components/references/backgrounds.json",
+    suggestions: [
+        { data: options },
+    ],    
+}) }}
