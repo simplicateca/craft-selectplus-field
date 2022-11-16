@@ -39,11 +39,11 @@
 }
 
 
-.referenceField__note strong[data-mmtab] {
+.referenceField__note *[data-click-mmtab] {
     cursor: pointer;
 }
 
-.referenceField__note strong[data-button] {
+.referenceField__note *[data-click-button] {
     cursor: pointer;
 }
 

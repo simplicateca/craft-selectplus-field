@@ -128,8 +128,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
         Craft.ReferenceField.Fields.clickReferenceLink( e.target )
     });
 
-    $(document).on('click', '.referenceField__note strong[data-action-mmtab]', function(e) {
-        const tabTitle = $(this).data('mmtab');
+    $(document).on('click', '.referenceField__note *[data-click-mmtab]', function(e) {
+        const tabTitle = $(this).data('click-mmtab');
 
         $(this)
             .closest('div.matrixblock.matrixmate-has-tabs')
@@ -137,8 +137,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
             [ 0 ].click()
     });
 
-    $(document).on('click', '.referenceField__note strong[data-action-button]', function(e) {
-        const buttonTitle = $(this).data('button');
+    $(document).on('click', '.referenceField__note *[data-click-button]', function(e) {
+        const buttonTitle = $(this).data('click-button');
 
         $(this)
             .closest('div.matrixblock .fields')

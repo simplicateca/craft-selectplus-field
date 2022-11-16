@@ -12,7 +12,7 @@ use craft\helpers\FileHelper;
 class ReferenceFile extends Component
 {
     
-    public function parse( $filename = null ): array {
+    public function parse( $filename = null, $model = [] ): array {
 
         if( !$filename ) { return []; }
 
@@ -20,10 +20,14 @@ class ReferenceFile extends Component
 		$templateMode = $view->getTemplateMode();
 		$view->setTemplateMode($view::TEMPLATE_MODE_SITE);
 			
-		$twigVars   = [];
         $saneVal    = preg_replace('/[{}%]/', '', $filename, -1);
         $include    = '{% include "' . trim($saneVal) . '" ignore missing %}';
-        $references = json_decode('[' . $view->renderString($include, $twigVars) . ']', true);
+
+        $twigVars   = $model ?? [];
+        $twigString = '[' . $view->renderString($include, $twigVars) . ']';
+        $references = json_decode($twigString, true);
+
+
 		$references = is_array( $references[0][0] ?? null ) ? $references[0] : $references;
 
 		$view->setTemplateMode($templateMode);

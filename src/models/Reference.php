@@ -37,7 +37,14 @@ class Reference extends Model
 	 */
 	public function reference( $field = null ): mixed
 	{
-		$references = ReferenceField::$instance->referenceFile->parse( $this->refpath ?? null );
+		$references = ReferenceField::$instance->referenceFile->parse(
+			$this->refpath 		?? null,
+			[
+				'value' 	   => $this->value		  ?? null,
+				'elementClass' => $this->elementClass ?? null,
+				'elementId'    => $this->elementId    ?? null
+			]
+		);
 		$references = collect( $references );
 
 		// we don't want to return nothing here.

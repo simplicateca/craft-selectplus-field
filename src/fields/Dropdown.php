@@ -45,8 +45,8 @@ class Dropdown extends Field implements PreviewableFieldInterface, SortableField
 		$data = json_decode( $value ?? '{}', true);
 
 		if( $data ) {
-			$data['elementClass'] = get_class( $element ) ?? '';
-			$data['elementId']    = $element->id ?? '';
+			$data['elementClass'] = get_class( $element->owner ) ?? '';
+			$data['elementId']    = $element->ownerId ?? '';
 			$data['refpath']      = $this->referenceFile;
 
 			return new Reference($data);
@@ -84,7 +84,13 @@ class Dropdown extends Field implements PreviewableFieldInterface, SortableField
 
 	public function getInputHtml($value, ElementInterface $element = null): string
 	{
-		$references  = ReferenceField::$instance->referenceFile->parse( $this->referenceFile );
+		$refVars = [
+			'value'        => $value->value                ?? '',
+			'elementClass' => get_class( $element->owner ) ?? '',
+			'elementId'    => $element->ownerId            ?? ''
+		];
+
+		$references  = ReferenceField::$instance->referenceFile->parse( $this->referenceFile, $refVars );
 		$options     = ReferenceField::$instance->referenceFile->options( $references );
 		$valueActual = $value->value ?? null;
 		$error       = false;
@@ -111,6 +117,7 @@ class Dropdown extends Field implements PreviewableFieldInterface, SortableField
 			'options' 		=> $options,
 			'references' 	=> $references,
 			'value' 		=> $valueActual,
+			'element'       => $element
 		]);
 	}
 }
