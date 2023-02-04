@@ -37,6 +37,10 @@ class Dropdown extends Field implements PreviewableFieldInterface, SortableField
 			return $value;
 		}
 
+		if( !$element ) {
+			return null;
+		}
+
 		// we're here when we're saving
 		if( is_array($value) ) {
 			$value = Json::encode($value);
@@ -45,7 +49,7 @@ class Dropdown extends Field implements PreviewableFieldInterface, SortableField
 		$data = json_decode( $value ?? '{}', true);
 
 		if( $data ) {
-			$data['elementClass'] = get_class( $element->owner ) ?? '';
+			$data['elementClass'] = ( $element->owner ?? false ) ? get_class( $element->owner ) : '';
 			$data['elementId']    = $element->ownerId ?? '';
 			$data['refpath']      = $this->referenceFile;
 
