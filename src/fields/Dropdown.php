@@ -9,13 +9,14 @@ use Craft;
 use craft\base\ElementInterface;
 use craft\base\PreviewableFieldInterface;
 use craft\base\SortableFieldInterface;
-use craft\fields\conditions\TextFieldConditionRule;
+//use craft\fields\conditions\TextFieldConditionRule;
 use craft\base\Field;
 use craft\helpers\Json;
 use yii\db\Schema;
 
 use simplicateca\referencefield\ReferenceField;
 use simplicateca\referencefield\models\Reference;
+use simplicateca\referencefield\fields\conditions\ReferenceFieldConditionRule;
 
 class Dropdown extends Field implements PreviewableFieldInterface, SortableFieldInterface
 {
@@ -37,10 +38,6 @@ class Dropdown extends Field implements PreviewableFieldInterface, SortableField
 			return $value;
 		}
 
-		if( !$element ) {
-			return null;
-		}
-
 		// we're here when we're saving
 		if( is_array($value) ) {
 			$value = Json::encode($value);
@@ -49,7 +46,7 @@ class Dropdown extends Field implements PreviewableFieldInterface, SortableField
 		$data = json_decode( $value ?? '{}', true);
 
 		if( $data ) {
-			$data['elementClass'] = ( $element->owner ?? false ) ? get_class( $element->owner ) : '';
+			$data['elementClass'] = get_class( $element->owner ) ?? '';
 			$data['elementId']    = $element->ownerId ?? '';
 			$data['refpath']      = $this->referenceFile;
 
@@ -60,7 +57,7 @@ class Dropdown extends Field implements PreviewableFieldInterface, SortableField
 	}
 
 	public function getTableAttributeHtml( $value, ElementInterface $element = null ): string
-	{	 
+	{
 		return ucwords(
 			preg_replace('/(?<!\ )[A-Z]/', ' $0', ( $value ? $value->value : '' ) )
 		);
@@ -71,13 +68,13 @@ class Dropdown extends Field implements PreviewableFieldInterface, SortableField
      */
     public function getElementConditionRuleType(): array|string|null
     {
-        return TextFieldConditionRule::class;
+        return ReferenceFieldConditionRule::class;
     }
 
 
 	public function getSettingsHtml(): ?string
 	{
-		// get a list of files for autosuggest	
+		// get a list of files for autosuggest
 		$referenceFiles = ReferenceField::$instance->referenceFile->findAll();
 
 		return Craft::$app->getView()->renderTemplate('referencefield/field-dropdown-settings', [
@@ -100,9 +97,9 @@ class Dropdown extends Field implements PreviewableFieldInterface, SortableField
 		$error       = false;
 
 		// what to do when we load a reference value that no longer exists in the reference file?
-		// probably have to do something in the 
+		// probably have to do something in the
 		if( $valueActual && !empty($valueActual) && !in_array( $valueActual, $options->keys()->toArray() ) ) {
-			$error = true;		
+			$error = true;
 			$options = $options->toArray();
 			array_unshift( $options, [ 'value' => $valueActual, 'label' => '[DEPRECATED]' ] );
 
