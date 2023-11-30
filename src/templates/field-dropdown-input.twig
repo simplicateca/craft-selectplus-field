@@ -6,12 +6,13 @@
 
 {% if true or options %}
 	<div class="referenceField">
+
 		{{ forms.selectField({
 			class: 'referenceField',
             errors: error ? ["The previously selected option is no longer available."] : false,
-            first: true ?? false,
+            first: true,
             id: id ~ namespacedId,
-			name: "#{name}[value]",
+			name: "#{name}",
 			options: options ?? [],
 			required: true,
             value: value ?? null,
@@ -28,7 +29,7 @@
                     {% set title     = opts.reference.title     ??  opts.title     ?? null %}
                     {% set moreUrl   = opts.reference.moreUrl   ??  opts.moreUrl   ?? null %}
                     {% set moreLabel = opts.reference.moreLabel ??  opts.moreLabel ?? null %}
-                    
+
                     {% if note %}
                         <div
                             data-value="{{opts.value}}"
@@ -41,14 +42,14 @@
                             data-more-label="{{moreLabel|e('html_attr')}}"
                             class="note"
                             style="display: {{display}};"
-                            >                            
+                            >
                                 <div class="icon">&#8627;</div>
                                 <div class="reftext">
                                     {{note|raw}}
 
                                     {% if image or video or html %}
                                         <a href='{{moreUrl??'#'}}'>See reference →</a>
-                                    {% endif %}                                    
+                                    {% endif %}
                                 </div>
                         </div>
                     {% endif %}

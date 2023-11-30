@@ -1,5 +1,5 @@
 <?php
 
 return [
-    'Craft Dynamic Fields plugin loaded' => 'Craft Dynamic Fields plugin loaded',
+    'Craft Reference Field plugin loaded' => 'Craft Reference Field plugin loaded',
 ];

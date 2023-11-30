@@ -27,34 +27,40 @@ class Dropdown extends Field implements PreviewableFieldInterface, SortableField
 		return Craft::t('referencefield', 'Dropdown (reference)');
 	}
 
+
 	public function getContentColumnType(): string
 	{
 		return Schema::TYPE_STRING;
 	}
 
+
 	public function normalizeValue( $value, ElementInterface $element = null ): mixed
 	{
-		if( $value instanceof Reference ) {
-			return $value;
-		}
+        $json = $value && !empty($value) && is_string( $value )
+            ? json_decode( $value, true)
+            : null;
 
-		// we're here when we're saving
-		if( is_array($value) ) {
-			$value = Json::encode($value);
-		}
+        $value = $value->value ?? $value['value'] ?? $json['value'] ?? $value;
 
-		$data = json_decode( $value ?? '{}', true);
-
-		if( $data ) {
-			$data['elementClass'] = get_class( $element->owner ) ?? '';
-			$data['elementId']    = $element->ownerId ?? '';
-			$data['refpath']      = $this->referenceFile;
-
-			return new Reference($data);
-		}
-
-		return $value ?? null;
+        return new Reference([
+            'value'   => $value,
+            'refpath' => $this->referenceFile,
+            'element' => $element,
+        ]);
 	}
+
+
+    public function serializeValue(mixed $value, ?ElementInterface $element = null): mixed
+    {
+		if( !$value || empty($value) ) return null;
+
+        $json = $value && !empty($value) && is_string( $value )
+            ? json_decode( $value, true)
+            : null;
+
+        return strval( $value->value ?? $value['value'] ?? $json['value'] ?? $value );
+    }
+
 
 	public function getTableAttributeHtml( $value, ElementInterface $element = null ): string
 	{
@@ -85,23 +91,20 @@ class Dropdown extends Field implements PreviewableFieldInterface, SortableField
 
 	public function getInputHtml($value, ElementInterface $element = null): string
 	{
-		$refVars = [
-			'value'        => $value->value                ?? '',
-			'elementClass' => get_class( $element->owner ) ?? '',
-			'elementId'    => $element->ownerId            ?? ''
-		];
+		$references = ReferenceField::$instance->referenceFile->parse( $value->refpath, [
+            'value'   => $value->value ?? null,
+            'element' => $element
+        ] );
 
-		$references  = ReferenceField::$instance->referenceFile->parse( $this->referenceFile, $refVars );
-		$options     = ReferenceField::$instance->referenceFile->options( $references );
-		$valueActual = $value->value ?? null;
-		$error       = false;
+        $options = ReferenceField::$instance->referenceFile->options( $references );
+		$error   = false;
 
 		// what to do when we load a reference value that no longer exists in the reference file?
 		// probably have to do something in the
-		if( $valueActual && !empty($valueActual) && !in_array( $valueActual, $options->keys()->toArray() ) ) {
+		if( $value->value && !empty($value->value) && !in_array( $value->value, $options->keys()->toArray() ) ) {
 			$error = true;
 			$options = $options->toArray();
-			array_unshift( $options, [ 'value' => $valueActual, 'label' => '[DEPRECATED]' ] );
+			array_unshift( $options, [ 'value' => $value->value, 'label' => '[DEPRECATED]' ] );
 
 		 	// try to find & set a new default value
 			// $default = collect( $reference )->whereIn('default', true)->first();
@@ -117,7 +120,7 @@ class Dropdown extends Field implements PreviewableFieldInterface, SortableField
 			'namespacedId' 	=> Craft::$app->getView()->namespaceInputId($id),
 			'options' 		=> $options,
 			'references' 	=> $references,
-			'value' 		=> $valueActual,
+			'value' 		=> $value->value,
 			'element'       => $element
 		]);
 	}

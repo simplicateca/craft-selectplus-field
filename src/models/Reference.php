@@ -13,15 +13,13 @@ class Reference extends Model
 {
 	public string $refpath;
 	public string $value;
-	public string $elementClass;
-	public string $elementId;
+	public object $element;
 
     public function __construct(array $ref)
     {
-        $this->refpath      = $ref['refpath'] ?? '';
-		$this->value        = $ref['value']   ?? '';
-		$this->elementClass = $ref['elementClass'] ?? '';
-		$this->elementId    = $ref['elementId'] ?? '';
+		$this->value = $ref['value'] ?? '';
+        if( $ref['refpath'] ) $this->refpath = $ref['refpath'];
+		if( $ref['element'] ) $this->element = $ref['element'];
     }
 
 	public function __toString(): string
@@ -37,17 +35,15 @@ class Reference extends Model
 	 */
 	public function reference( $field = null ): mixed
 	{
-		$references = ReferenceField::$instance->referenceFile->parse(
-			$this->refpath 		?? null,
-			[
-				'value' 	   => $this->value		  ?? null,
-				'elementClass' => $this->elementClass ?? null,
-				'elementId'    => $this->elementId    ?? null
-			]
-		);
-		$references = collect( $references );
+        $references = collect(
+            ReferenceField::$instance->referenceFile->parse(
+			    $this->refpath ?? null,
+			    [ 'value'   => $this->value	  ?? null,
+				  'element' => $this->element ?? null ]
+		    )
+        );
 
-		// we don't want to return nothing here.
+		// we want to try our best to return *something* here.
 		// so first we look for the matching value, then the first default field
 		// we default to the first field in the reference file
 		$selected = $references->whereIn('value', $this->value ?? null)->first()
