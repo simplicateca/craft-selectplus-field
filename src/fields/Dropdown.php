@@ -9,9 +9,7 @@ use Craft;
 use craft\base\ElementInterface;
 use craft\base\PreviewableFieldInterface;
 use craft\base\SortableFieldInterface;
-//use craft\fields\conditions\TextFieldConditionRule;
 use craft\base\Field;
-use craft\helpers\Json;
 use yii\db\Schema;
 
 use simplicateca\referencefield\ReferenceField;
@@ -91,7 +89,7 @@ class Dropdown extends Field implements PreviewableFieldInterface, SortableField
 
 	public function getInputHtml($value, ElementInterface $element = null): string
 	{
-		$references = ReferenceField::$instance->referenceFile->parse( $value->refpath, [
+		$references = ReferenceField::$instance->referenceFile->parse( $value->refpath ?? null, [
             'value'   => $value->value ?? null,
             'element' => $element
         ] );
