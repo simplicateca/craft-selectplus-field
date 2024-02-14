@@ -1,6 +1,6 @@
 {
-  "name": "simplicateca/craft-reference-field",
-  "description": "Reference Field Plugin for Craft CMS 4",
+  "name": "simplicateca/selectplus",
+  "description": "SelectPlus Custom Field Plugin for Craft CMS 4",
   "type": "craft-plugin",
   "keywords": ["craft", "plugin", "custom-field"],
   "license": "MIT",
@@ -12,23 +12,21 @@
   ],
   "support": {
     "email": "info@simplicate.ca",
-    "issues": "https://github.com/simplicateca/craft-reference-field/issues?state=open",
-    "source": "https://github.com/simplicateca/craft-reference-field",
-    "docs": "https://github.com/simplicateca/craft-reference-field/blob/master/README.md"
+    "issues": "https://github.com/simplicateca/craft-selectplus-field/issues?state=open",
+    "source": "https://github.com/simplicateca/craft-selectplus-field",
+    "docs": "https://github.com/simplicateca/craft-selectplus-field/blob/main/README.md"
   },
   "require": {
-    "craftcms/cms": "^4.0.0",
-    "masterminds/html5": "^2.0",
-    "symfony/dom-crawler": "^6.0"
+    "craftcms/cms": "^4.0.0"
   },
   "autoload": {
     "psr-4": {
-      "simplicateca\\referencefield\\": "src/"
+      "simplicateca\\selectplus\\": "src/"
     }
   },
   "extra": {
-    "name": "Reference Field",
-    "handle": "referencefield",
-    "class": "simplicateca\\referencefield\\ReferenceField"
+    "name": "SelectPlus",
+    "handle": "selectplus",
+    "class": "simplicateca\\selectplus\\SelectPlus"
   }
 }

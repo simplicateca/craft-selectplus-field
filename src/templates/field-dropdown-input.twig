@@ -1,56 +1,188 @@
 {% import "_includes/forms" as forms %}
 
 {% if not options %}
-	<p class="error">The reference file associated with this field is missing or corrupt. Contact your CMS admin.</p>
+	<p class="error">The config file associated with this field is missing or corrupt. Contact your CMS admin.</p>
 {% endif %}
 
-{% if true or options %}
-	<div class="referenceField">
+{% if options %}
+	<div
+        class="selectPlusField"
+        data-namespace="{{ namespace }}"
+        data-fieldname="{{ field.name }}"
+    >
+        <div class="selectPlusField__control">
+            {{ forms.selectizeField({
+                name   : field.handle ~ "[value]",
+                options: optIndex,
+                value  : value.value ?? optIndex|first.value ?? null,
+                errors : error ? ["Make a new selection. Previous option unavailable."] : false,
+                class  : 'selectPlusField__selectize',
+                selectizeOptions: {
+                    highlight: false,
+                }
+            }) }}
 
-		{{ forms.selectField({
-			class: 'referenceField',
-            errors: error ? ["The previously selected option is no longer available."] : false,
-            first: true,
-            id: id ~ namespacedId,
-			name: "#{name}",
-			options: options ?? [],
-			required: true,
-            value: value ?? null,
-		}) }}
+            <div class="selectPlusField__inputs">
+                {% for opt in options %}
+                    {% if opt.inputs ??? null %}
+                        <a
+                            data-option="{{opt.value}}"
+                            data-label="{{opt.label}}"
+                            data-field="{{field.name}}"
+                            tabindex="0"
+                            class="settings icon"
+                            title="Extra Settings"
+                            aria-label="Extra Settings for {{opt.label}}"
+                            role="button"
+                            style="display: none;"
+                        ></a>
+                    {% endif %}
+                {% endfor %}
 
-		{% if references ?? null %}
-            <div class="referenceField__note">
-                {% for key, opts in references %}
-                    {% set display   = ( value == opts.value or (loop.first and not value) ) ? 'flex' : 'none' %}
-                    {% set note      = opts.reference.note      ??  opts.note      ?? null %}
-                    {% set image     = opts.reference.image     ??  opts.image     ?? null %}
-                    {% set video     = opts.reference.video     ??  opts.video     ?? null %}
-                    {% set html      = opts.reference.html      ??  opts.html      ?? null %}
-                    {% set title     = opts.reference.title     ??  opts.title     ?? null %}
-                    {% set moreUrl   = opts.reference.moreUrl   ??  opts.moreUrl   ?? null %}
-                    {% set moreLabel = opts.reference.moreLabel ??  opts.moreLabel ?? null %}
+                {{ forms.hidden({
+                    id   : id ~ '-json',
+                    name : field.handle ~ "[json]",
+                    value: value.json,
+                }) }}
+            </div>
+        </div>
 
-                    {% if note %}
+		{% if options ?? null %}
+            <div class="selectPlusField__docs">
+                {% for opt in options %}
+
+                    {% set fieldName = field.name ?? 'what' %}
+
+                    {% set display   = ( value == opt.value or (loop.first and not value) ) ? 'flex' : 'none' %}
+                    {% set brief     = opt.docs.brief     ?? null %}
+                    {% set title     = opt.docs.title     ?? "#{fieldName}: #{opt.label} (Resources)" %}
+                    {% set image     = opt.docs.image     ?? null %}
+                    {% set video     = opt.docs.video     ?? null %}
+                    {% set html      = opt.docs.html      ?? null %}
+                    {% set moreUrl   = opt.docs.moreUrl   ?? null %}
+                    {% set moreLabel = opt.docs.moreLabel ?? null %}
+
+                    {% if brief %}
                         <div
-                            data-value="{{opts.value}}"
+                            data-option="{{opt.value}}"
                             data-image="{{image|e('html_attr')}}"
                             data-video="{{video|e('html_attr')}}"
                             data-html="{{html|e('html_attr')}}"
                             data-title="{{title|e('html_attr')}}"
-                            data-note="{{note|e('html_attr')}}"
                             data-more-url="{{moreUrl|e('html_attr')}}"
                             data-more-label="{{moreLabel|e('html_attr')}}"
-                            class="note"
+                            class="brief h5"
                             style="display: {{display}};"
                             >
-                                <div class="icon">&#8627;</div>
-                                <div class="reftext">
-                                    {{note|raw}}
+                                {{ brief | raw | widont }}
 
-                                    {% if image or video or html %}
-                                        <a href='{{moreUrl??'#'}}'>See reference →</a>
+                                {% if image or video or html %}
+                                    <a href='{{moreUrl??'#'}}' style='white-space:nowrap'>More&thinsp;→</a>
+                                {% endif %}
+                        </div>
+                    {% endif %}
+
+                    {% set inputs = opt.inputs ?? [] %}
+                    {% if inputs %}
+                        <div id="{{ id }}-inputs-{{opt.value}}" style="display: none;">
+                            <h2 style="font-size:18px">{{ opt.docs.modalLabel ?? opt.label }}</h2>
+                            {% if opt.docs.modalIntro ?? null %}
+                                <p>{{ opt.docs.modalIntro }}</p>
+                            {% endif %}
+
+                            <div class="selectPlusField__modalContentFields">
+                                {% for input in inputs %}
+                                    {% set field = input.field|default() %}
+                                    {% if field %}
+                                        {% set input = {
+                                            type   : input.type|default('text'),
+                                            name   : field,
+                                            label  : input.label | t('app'),
+                                            value  : value.data( field ) ??? input.default ??? null,
+                                            options: input.options ?? [],
+                                            size   : input.size ?? null,
+                                            min    : input.min  ?? null,
+                                            max    : input.max  ?? null,
+                                            max    : input.max  ?? null,
+                                            step   : input.step ?? null,
+                                            maxlength   : input.maxlength ?? null,
+                                            placeholder : input.placeholder ?? null  | t('app'),
+                                            instructions: input.instructions ?? null | t('app'),
+                                            fieldClass  : input.fieldClass ?? 'field width-100',
+                                        } %}
+
+                                        {% if input.type == 'text' %}
+                                            {{ forms.textField({
+                                                disabled: true,
+                                                name : input.name,
+                                                label: input.label | t('app'),
+                                                value: input.value ??? '',
+                                                size : input.size,
+                                                maxlength : input.maxlength,
+                                                class: 'spf__input',
+                                                placeholder : input.placeholder | t('app'),
+                                                instructions: input.instructions | t('app'),
+                                                fieldClass: input.fieldClass,
+                                            }) }}
+                                        {% endif %}
+
+                                        {% if input.type == 'number' %}
+                                            {{ forms.textField({
+                                                disabled: true,
+                                                type : 'number',
+                                                name : input.name,
+                                                label: input.label | t('app'),
+                                                value: input.value,
+                                                size : input.size,
+                                                min  : input.min,
+                                                max  : input.max,
+                                                step : input.step,
+                                                class: 'spf__input',
+                                                placeholder : input.placeholder | t('app'),
+                                                instructions: input.instructions | t('app'),
+                                                fieldClass: input.fieldClass,
+                                            }) }}
+                                        {% endif %}
+
+                                        {% if input.type == 'lightswitch' %}
+                                            {{ forms.lightswitchField({
+                                                name : input.name,
+                                                label: input.label | t('app'),
+                                                on   : input.value ?? false,
+                                                class: 'spf__input',
+                                                instructions: input.instructions,
+                                                fieldClass: input.fieldClass,
+                                            }) }}
+                                        {% endif %}
+
+                                        {% if input.type == 'select' and input.options %}
+                                            {{ forms.selectField({
+                                                disabled: true,
+                                                name   : input.name,
+                                                label  : input.label | t('app'),
+                                                value  : input.value ?? input.options | keys | first,
+                                                options: input.options,
+                                                class: 'spf__input',
+                                                instructions: input.instructions | t('app'),
+                                                fieldClass: input.fieldClass,
+                                            }) }}
+                                        {% endif %}
+
+                                        {% if input.type == 'radio' and input.options %}
+                                            {{ forms.radioGroupField({
+                                                disabled: true,
+                                                name   : input.name,
+                                                label  : input.label | t('app'),
+                                                value  : input.value ?? input.options | keys | first,
+                                                options: input.options,
+                                                class: 'spf__input',
+                                                instructions: input.instructions | t('app'),
+                                                fieldClass: input.fieldClass,
+                                            }) }}
+                                        {% endif %}
                                     {% endif %}
-                                </div>
+                                {% endfor %}
+                            </div>
                         </div>
                     {% endif %}
                 {% endfor %}

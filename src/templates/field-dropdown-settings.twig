@@ -1,15 +1,15 @@
 {% import "_includes/forms" as forms %}
 
 {{ forms.autosuggestField({
-    label: "Reference JSON"|t('referencefield'),
-    instructions: "The relative path from your `cms/templates` directory"|t('referencefield'),
-    id: 'referenceFile',
+    label: "JSON Config"|t('selectplus'),
+    instructions: "The relative path from your `cms/templates` directory"|t('selectplus'),
+    id: 'configFile',
     class: ['ltr', 'template'],
-    name: 'referenceFile',
-    value: field.referenceFile ?? null,
+    name: 'configFile',
+    value: field.configFile ?? null,
     required: true,
-    placeholder: "_components/references/backgrounds.json",
+    placeholder: "_site/json/layout.json",
     suggestions: [
         { data: options },
-    ],    
+    ],
 }) }}

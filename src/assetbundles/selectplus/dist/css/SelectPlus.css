@@ -1,0 +1,90 @@
+/**
+ * SelectPlusField - CSS
+ */
+
+.selectPlusField {
+    display: flex;
+    flex-direction: column;
+}
+
+.selectPlusField__control {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    align-items: center;
+}
+
+.selectPlusField__control .field {
+    width: 100%;
+    margin-bottom: 0;
+}
+
+.selectPlusField div.input .select {
+
+}
+
+.selectPlusField__selectize {
+
+}
+
+.selectPlusField__inputs a {
+    min-width: 12px;
+}
+
+.selectPlusField div.input .select select {
+
+}
+
+.selectPlusField div[data-note] a {
+    white-space: nowrap;
+}
+
+.selectPlusField__docs {
+    margin: 8px 0;
+}
+
+.selectPlusField__docs .h5.brief {
+    padding-left: 16px;
+    margin-top: 0;
+    line-height: 1.5em;
+    position: relative;
+}
+
+.selectPlusField__docs .brief::before {
+    content:'↳';
+    position: absolute;
+    left: 3px;
+    top: -2px;
+}
+
+
+.selectPlusField__modalContent ul {
+    list-style: disc;
+    margin-left: 1rem;
+}
+
+.selectPlusField__modalContentFields .field {
+    padding: 24px 0;
+    margin: 0;
+    max-width: 100%;
+    min-width: 100%;
+    flex-grow: 1;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.selectPlusField__modalContent .field:last-of-type {
+    border-bottom: 0;
+}
+
+.selectPlusField__modalContentFields {
+    display: flex;
+    flex-wrap: wrap;
+    align-item: flex-start;
+    justify-content: flex-start;
+    gap: 0 24px;
+}
+
+.selectPlusField__modalContentFields .field.width-50 {
+    max-width: calc(50% - 12px);
+    min-width: calc(50% - 12px);
+}

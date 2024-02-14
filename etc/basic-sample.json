@@ -1,0 +1,31 @@
+[
+    {
+        "label": "Option One",
+        "value": "one",
+        "docs": {
+            "tooltip": "Lorem ipsum about option one..."
+        },
+        "inputs" : [],
+        "settings": {}
+    },
+
+    {
+        "label": "Option Two",
+        "value": "two",
+        "docs": {
+            "tooltip": "Lorem ipsum about option two..."
+        },
+        "inputs" : [],
+        "settings": {}
+    },
+
+    {
+        "label": "Option Three",
+        "value": "three",
+        "docs": {
+            "tooltip": "Lorem ipsum about option three..."
+        },
+        "inputs" : [],
+        "settings": {}
+    }
+]
