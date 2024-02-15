@@ -6,16 +6,9 @@ A JSON configured custom field type for Craft CMS 4+
 
 ## Overview
 
-This field presents like a standard Craft CMS [Dropdown Field](https://craftcms.com/docs/4.x/dropdown-fields.html).
+This field presents similar to a standard Craft CMS [Dropdown Field](https://craftcms.com/docs/4.x/dropdown-fields.html).
 
 Hiding under the hood are a bunch of features aimed at improving the content authoring experience and developer templating flexibility.
-
-
-## Installation
-
-This early release version is not currently available on the Craft Plugin store, and can only be installed via Composer.
-
-Run `composer require simplicateca/selectplus` and enable the plugin from "Settings > Plugins"
 
 
 ## Features
@@ -77,12 +70,13 @@ Why would this ever be useful? Plenty of reasons!
 
     Explain With Examples...
 
+
 ### Instant Updates
 
 Because changes to the JSON file are immediately reflected in all instances of the field, you can use this to easily tweak any number of settings across many templates or entires without having to go into the Control Panel and edit/resave individual records.
 
 
-## Improved Content Authoring Experience
+## Inline Option Documentation
 
 While Craft CMS allows for us to associate instructions with each field, these only apply to the field as a whole, and not to individual options.
 
@@ -90,10 +84,11 @@ SelectPlus fields allow for the creation of inline documentation for each option
 
 Modal content can consist of escaped HTML strings stored within each JSON config or to file path to a Twig files within your `templates` folder.
 
-### TBD - outline the different `docs` options from the JSON config
+
+    TBD: Outline Different documentation settings in the JSON config
 
 
-## Advanced SelectPlus Features
+## Advanced Features
 
 The SelectPlus field also includes a number of advanced features that can be used to create a more powerful and flexible content authoring experience.
 
@@ -280,18 +275,19 @@ You can name the button using the `buttonOnlyLabel` field.
 **\-Button only mode is coming soon.**
 
 
-## Compatibility
+## Installation
 
-Currently working in Craft CMS 4.0+
+This early release version is not currently available on the Craft Plugin store, and can only be installed via Composer.
+
+**Requires Craft CMS 4+**
+
+Run `composer require simplicateca/selectplus` and then enable the plugin from "Settings > Plugins"
 
 
 ## Credits
 
-Brought to you by  [simplicate.ca](https://www.simplicate.ca/). Written by [Steve Comrie](https://github.com/stevecomrie).
+Brought to you by  [simplicate.ca](https://simplicate.ca)
 
-Thanks to the [Design Tokens](https://plugins.craftcms.com/designtokens?craft4) field by Trendy Minds and the [Matrix Field Preview](https://plugins.craftcms.com/matrix-field-preview?craft4) plugin by Feral for inspiration to create this plugin.
+Thanks to the [Design Tokens](https://plugins.craftcms.com/designtokens?craft4) field by Trendy Minds and the [Matrix Field Preview](https://plugins.craftcms.com/matrix-field-preview?craft4) plugin by Feral for inspiration.
 
-
-## Contributing
-
-[Bug reports](https://github.com/simplicateca/craft-selectplus-field/issues), feedback, and pull requests welcome.
+[Bug reports welcome](https://github.com/simplicateca/craft-selectplus-field/issues).

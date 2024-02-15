@@ -103,7 +103,7 @@
                                             maxlength   : input.maxlength    ?? 255,
                                             placeholder : input.placeholder  ?? null | t('app'),
                                             instructions: input.instructions ?? null | t('app'),
-                                            fieldClass  : input.fieldClass   ? 'field ' ~ input.fieldClass : 'field width-100',
+                                            fieldClass  : ( input.fieldClass ?? null ) ? 'field ' ~ input.fieldClass : 'field width-100',
                                         } %}
 
                                         {% if input.type == 'text' %}

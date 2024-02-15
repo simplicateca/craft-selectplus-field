@@ -14,7 +14,7 @@ use craft\base\PreviewableFieldInterface;
 use simplicateca\selectplus\helpers\ConfigHelper;
 use simplicateca\selectplus\fields\SelectPlusData;
 
-class SelectPlus extends Field implements PreviewableFieldInterface, SortableFieldInterface
+class SelectPlusField extends Field implements PreviewableFieldInterface, SortableFieldInterface
 {
 	public string $configFile = '';
 

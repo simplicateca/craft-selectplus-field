@@ -1,34 +1,32 @@
 {
-  "name": "simplicateca/selectplus",
-  "description": "SelectPlus Custom Field Plugin for Craft CMS 4",
-  "type": "craft-plugin",
-  "keywords": ["craft", "plugin", "field", "custom-field",
-               "author-experience", "user-documentarion",
-               "select", "select-field", "dropdown"],
-  "license": "MIT",
-  "authors": [
-    {
-      "name": "Simplicate",
-      "homepage": "https://simplicate.ca"
+    "name": "simplicateca/selectplus",
+    "description": "SelectPlus is a dropdown-like custom field plugin for Craft CMS 4+",
+    "type": "craft-plugin",
+    "keywords": ["craft-cms", "custom-field", "select", "select-field", "dropdown" ],
+    "license": "MIT",
+    "authors": [
+      {
+        "name": "Simplicate",
+        "homepage": "https://simplicate.ca"
+      }
+    ],
+    "support": {
+      "email": "info@simplicate.ca",
+      "issues": "https://github.com/simplicateca/craft-selectplus-field/issues?state=open",
+      "source": "https://github.com/simplicateca/craft-selectplus-field",
+      "docs": "https://github.com/simplicateca/craft-selectplus-field/blob/main/README.md"
+    },
+    "require": {
+      "craftcms/cms": "^4.0.0"
+    },
+    "autoload": {
+      "psr-4": {
+        "simplicateca\\selectplus\\": "src/"
+      }
+    },
+    "extra": {
+      "name": "SelectPlus",
+      "handle": "selectplus",
+      "class": "simplicateca\\selectplus\\SelectPlus"
     }
-  ],
-  "support": {
-    "email": "info@simplicate.ca",
-    "issues": "https://github.com/simplicateca/craft-selectplus-field/issues?state=open",
-    "source": "https://github.com/simplicateca/craft-selectplus-field",
-    "docs": "https://github.com/simplicateca/craft-selectplus-field/blob/main/README.md"
-  },
-  "require": {
-    "craftcms/cms": "^4.0.0"
-  },
-  "autoload": {
-    "psr-4": {
-      "simplicateca\\selectplus\\": "src/"
-    }
-  },
-  "extra": {
-    "name": "SelectPlus",
-    "handle": "selectplus",
-    "class": "simplicateca\\selectplus\\SelectPlus"
   }
-}

@@ -79,7 +79,7 @@ Craft.SelectPlusField.InputModal = Garnish.Modal.extend({
         // footer and buttons
         var $footer = $('<div class="footer"/>').appendTo(this.$form);
         var $mainBtnGroup = $('<div class="buttons right"/>').appendTo($footer);
-        this.$saveBtn = $('<input type="button" class="btn" value="' + Craft.t('app', 'Save') + '"/>').appendTo($mainBtnGroup);
+        this.$saveBtn = $('<input type="button" class="btn" value="' + Craft.t('app', 'Close') + '"/>').appendTo($mainBtnGroup);
         this.addListener(this.$saveBtn, 'click', 'onFadeOut');
 
         // init the modal

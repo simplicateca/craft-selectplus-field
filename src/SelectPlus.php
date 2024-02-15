@@ -46,7 +46,7 @@ class SelectPlus extends \craft\base\Plugin
             Event::on( View::class, View::EVENT_BEFORE_RENDER_TEMPLATE, function ( TemplateEvent $event ) {
                 try {
                     Craft::$app->getView()->registerAssetBundle(
-                        \simplicateca\selectplus\assetbundles\SelectPlusAssets::class
+                        \simplicateca\selectplus\assetbundles\selectplus\SelectPlusAssets::class
                     );
                 } catch ( InvalidConfigException $e ) {
                     Craft::error( 'Error registering AssetBundle - '.$e->getMessage(), __METHOD__ );
