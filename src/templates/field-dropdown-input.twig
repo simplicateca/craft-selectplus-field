@@ -26,9 +26,9 @@
                 {% for opt in options %}
                     {% if opt.inputs ??? null %}
                         <a
-                            data-option="{{opt.value}}"
-                            data-label="{{opt.label}}"
                             data-field="{{field.name}}"
+                            data-option="{{opt.value}}"
+                            data-title="{{opt.docs.modalTitle ?? opt.label}}"
                             tabindex="0"
                             class="settings icon"
                             title="Extra Settings"
@@ -51,33 +51,29 @@
             <div class="selectPlusField__docs">
                 {% for opt in options %}
 
-                    {% set fieldName = field.name ?? 'what' %}
+                    {% set fieldName = field.name ?? null %}
 
-                    {% set display   = ( value == opt.value or (loop.first and not value) ) ? 'flex' : 'none' %}
-                    {% set brief     = opt.docs.brief     ?? null %}
-                    {% set title     = opt.docs.title     ?? "#{fieldName}: #{opt.label} (Resources)" %}
-                    {% set image     = opt.docs.image     ?? null %}
-                    {% set video     = opt.docs.video     ?? null %}
-                    {% set html      = opt.docs.html      ?? null %}
-                    {% set moreUrl   = opt.docs.moreUrl   ?? null %}
-                    {% set moreLabel = opt.docs.moreLabel ?? null %}
+                    {% set display = ( value == opt.value or (loop.first and not value) ) ? 'flex' : 'none' %}
+                    {% set tooltip = opt.docs.tooltip ?? null %}
+                    {% set title   = opt.docs.title   ?? "#{fieldName}: #{opt.label} (Resources)" %}
+                    {% set html    = opt.docs.html    ?? null %}
+                    {% set url     = opt.docs.url     ?? null %}
+                    {% set more    = opt.docs.more    ?? 'More&thinsp;→'|t %}
 
-                    {% if brief %}
+                    {% if tooltip %}
                         <div
                             data-option="{{opt.value}}"
-                            data-image="{{image|e('html_attr')}}"
-                            data-video="{{video|e('html_attr')}}"
                             data-html="{{html|e('html_attr')}}"
                             data-title="{{title|e('html_attr')}}"
-                            data-more-url="{{moreUrl|e('html_attr')}}"
-                            data-more-label="{{moreLabel|e('html_attr')}}"
-                            class="brief h5"
+                            data-url="{{url|e('html_attr')}}"
+                            data-more="{{more|e('html_attr')}}"
+                            class="selectPlusField__tooltip"
                             style="display: {{display}};"
                             >
-                                {{ brief | raw | widont }}
+                                {{ tooltip | raw | widont }}
 
-                                {% if image or video or html %}
-                                    <a href='{{moreUrl??'#'}}' style='white-space:nowrap'>More&thinsp;→</a>
+                                {% if html %}
+                                    <a href='{{url??'#'}}' style='white-space:nowrap'>{{'More&thinsp;→'|t}}→</a>
                                 {% endif %}
                         </div>
                     {% endif %}
@@ -85,7 +81,6 @@
                     {% set inputs = opt.inputs ?? [] %}
                     {% if inputs %}
                         <div id="{{ id }}-inputs-{{opt.value}}" style="display: none;">
-                            <h2 style="font-size:18px">{{ opt.docs.modalLabel ?? opt.label }}</h2>
                             {% if opt.docs.modalIntro ?? null %}
                                 <p>{{ opt.docs.modalIntro }}</p>
                             {% endif %}
@@ -105,10 +100,10 @@
                                             max    : input.max  ?? null,
                                             max    : input.max  ?? null,
                                             step   : input.step ?? null,
-                                            maxlength   : input.maxlength ?? null,
-                                            placeholder : input.placeholder ?? null  | t('app'),
+                                            maxlength   : input.maxlength    ?? 255,
+                                            placeholder : input.placeholder  ?? null | t('app'),
                                             instructions: input.instructions ?? null | t('app'),
-                                            fieldClass  : input.fieldClass ?? 'field width-100',
+                                            fieldClass  : input.fieldClass   ? 'field ' ~ input.fieldClass : 'field width-100',
                                         } %}
 
                                         {% if input.type == 'text' %}

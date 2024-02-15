@@ -5,8 +5,10 @@
         "docs": {
             "tooltip": "Lorem ipsum about option one..."
         },
-        "inputs" : [],
-        "settings": {}
+        "settings": {
+            "template" : "_layouts/basic.twig",
+            "fizz": true
+        }
     },
 
     {
@@ -15,8 +17,10 @@
         "docs": {
             "tooltip": "Lorem ipsum about option two..."
         },
-        "inputs" : [],
-        "settings": {}
+        "settings": {
+            "template" : "_layouts/basic.twig",
+            "fizz": false
+        }
     },
 
     {
@@ -25,7 +29,9 @@
         "docs": {
             "tooltip": "Lorem ipsum about option three..."
         },
-        "inputs" : [],
-        "settings": {}
+        "settings": {
+            "template" : "_layouts/complex.twig",
+            "buzz": ["one", "two"]
+        }
     }
 ]

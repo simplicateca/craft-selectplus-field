@@ -2,7 +2,9 @@
   "name": "simplicateca/selectplus",
   "description": "SelectPlus Custom Field Plugin for Craft CMS 4",
   "type": "craft-plugin",
-  "keywords": ["craft", "plugin", "custom-field"],
+  "keywords": ["craft", "plugin", "field", "custom-field",
+               "author-experience", "user-documentarion",
+               "select", "select-field", "dropdown"],
   "license": "MIT",
   "authors": [
     {

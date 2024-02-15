@@ -1,0 +1,61 @@
+[{
+    "label": "All Input Fields",
+    "value": "allFields",
+    "docs": {
+        "tooltip": "This field has all the input types available in the Settings Modal"
+    },
+    "inputs": [
+        {
+            "label"         : "Enter Plain Text",
+            "field"         : "textFieldName",
+            "type"          : "text",
+            "default"       : "",
+            "placeholder"   : "",
+            "size"          : null,
+            "maxlength"     : 255,
+            "instructions"  : "Notes about this field for the content editor",
+            "fieldClass"    : "width-100"
+        }
+       ,{
+            "label"         : "Choose from Select",
+            "field"         : "selectFieldName",
+            "type"          : "select",
+            "default"       : null,
+            "instructions"  : "Fusce dapibus tellus lorem, in mattis quam dictum id.",
+
+            "options" : {
+                "plain"   : "Plain",
+                "fancy"   : "Fancy"
+            }
+        }
+       ,{
+            "label"         : "Guess a Number",
+            "field"         : "numberFieldName",
+            "type"          : "number",
+            "default"       : "",
+            "placeholder"   : "",
+            "size"          : null,
+            "min"           : null,
+            "max"           : null,
+            "step"          : null,
+            "instructions"  : "Notes about this field for the content editor",
+            "fieldClass"    : "width-100"
+        }
+       ,{
+            "label"         : "Lightswitch",
+            "field"         : "switchFieldName",
+            "type"          : "lightswitch",
+            "default"       : "",
+            "instructions"  : "Notes about this field for the content editor",
+            "fieldClass"    : "width-100"
+        }
+       ,{
+            "label"         : "Radio Group",
+            "field"         : "switchFieldName",
+            "type"          : "lightswitch",
+            "default"       : "",
+            "instructions"  : "Notes about this field for the content editor",
+            "fieldClass"    : "width-100"
+        }
+    ]
+}]

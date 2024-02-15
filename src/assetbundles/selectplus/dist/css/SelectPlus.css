@@ -43,14 +43,15 @@
     margin: 8px 0;
 }
 
-.selectPlusField__docs .h5.brief {
+.selectPlusField__tooltip {
     padding-left: 16px;
+    font-size: 1rem;
     margin-top: 0;
     line-height: 1.5em;
     position: relative;
 }
 
-.selectPlusField__docs .brief::before {
+.selectPlusField__tooltip::before {
     content:'↳';
     position: absolute;
     left: 3px;

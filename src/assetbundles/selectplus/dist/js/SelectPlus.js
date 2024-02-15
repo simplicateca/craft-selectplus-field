@@ -14,26 +14,15 @@ Craft.SelectPlusField.DocumentationModal = Garnish.Modal.extend({
         });
 
         const content = Object.assign({}, {
-            image: null,
-            video: null,
-            html: null,
             title: 'Documentation',
-            moreUrl: null,
-            moreLabel: 'More',
-            moreTarget: '_blank',
+            more : 'More',
+            url  : null,
+            html : null,
         }, modalContent )
 
         this.$form = $('<form class="modal fitted" method="post" accept-charset="UTF-8"/>').appendTo(Garnish.$bod);
 
         var $header = $('<div class="header"><h1>' + content.title + '</h1></header>').appendTo(this.$form);
-
-        if( content.image ) {
-            this.$body = $('<div class="body" style="padding: 24px; height: 100%; max-height: calc(100% - 120px); overflow:auto; max-width: 740px;"><div><img src="' + content.image +'"></div></div>').appendTo(this.$form);
-        }
-
-        if( content.video ) {
-            this.$body = $('<div class="body" style="padding: 24px; height: 100%; max-height: calc(100% - 120px); overflow:auto; max-width: 740px;"><div style="display: flex; align-items: center; justify-content: center; max-height: 100%; height: 100%;"><video style="width:auto; max-height: 100%;" controls width="100%"><source src="' + content.video +'"></video></div></div>').appendTo(this.$form);
-        }
 
         if( content.html ) {
             this.$body = $('<div class="body" style="padding: 24px; height: 100%; max-height: calc(100% - 120px); overflow:auto; max-width: 740px;"><div class="selectPlusField__modalContent">' + content.html + '</div></div>').appendTo(this.$form);
@@ -43,8 +32,8 @@ Craft.SelectPlusField.DocumentationModal = Garnish.Modal.extend({
 
         var $mainBtnGroup = $('<div class="buttons right"/>').appendTo($footer);
 
-        if( content.moreUrl ) {
-            this.$moreBtn = $('<a href="' + content.moreUrl + '" target="'+ content.moreTarget +'" class="btn submit">' + Craft.t('selectplus', content.moreLabel) + '</a>').appendTo($mainBtnGroup);
+        if( content.url ) {
+            this.$moreBtn = $('<a href="' + content.url + '" target="_blank" class="btn submit">' + Craft.t('selectplus', content.more) + '</a>').appendTo($mainBtnGroup);
             this.addListener(this.$moreBtn, 'click', 'onFadeOut');
         }
 
@@ -221,12 +210,10 @@ Craft.SelectPlusField.Fields = {
         const parent  = link.closest('div.note')
 
         const modalSettings = {
-            image:     parent.dataset.image     ?? null,
-            video:     parent.dataset.video     ?? null,
-            html:      parent.dataset.html      ?? null,
-            title:     parent.dataset.title     ?? null,
-            moreUrl:   parent.dataset.moreUrl   ?? null,
-            moreLabel: parent.dataset.moreLabel ?? null,
+            title: parent.dataset.title ?? null,
+            more:  parent.dataset.more  ?? null,
+            url:   parent.dataset.url   ?? null,
+            html:  parent.dataset.html  ?? null,
         }
 
         new Craft.SelectPlusField.DocumentationModal( modalSettings )

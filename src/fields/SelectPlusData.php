@@ -53,6 +53,18 @@ class SelectPlusData extends \craft\base\Model
     }
 
 
+    public function __get( $property ) {
+
+        if( strtolower( $property ) == 'settings' ) {
+            return array_merge( $this->setting('settings'), $this->data() );
+        }
+
+        return $this->data( $property )
+            ?? $this->setting( $property )
+            ?? null;
+    }
+
+
 	public function __toString(): string
 	{
         return (string) $this->value;
@@ -80,7 +92,7 @@ class SelectPlusData extends \craft\base\Model
 	 *
 	 * @return object|null Either return the value from the config or null
 	 */
-	public function settings( $key = null ): mixed
+	private function setting( $key = null ): mixed
 	{
         $options = collect( ConfigHelper::load( $this->config, $this->asArray() ) );
 
@@ -92,7 +104,9 @@ class SelectPlusData extends \craft\base\Model
         $settings = [ 'value' => $selected['value'] ?? '', 'label' => $selected['label'] ?? '' ];
         $settings = array_merge( $settings, $selected['settings'] ?? [] );
 
-		return $settings[$key] ?? $settings ?? [];
+        return $key
+            ? $selected[$key] ?? null
+            : $selected ?? [];
 	}
 
 
