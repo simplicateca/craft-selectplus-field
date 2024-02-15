@@ -11,6 +11,15 @@ This field presents similar to a standard Craft CMS [Dropdown Field](https://cra
 Hiding under the hood are a bunch of features aimed at improving the content authoring experience and developer templating flexibility.
 
 
+## Installation
+
+This early release version is not currently available on the Craft Plugin store, and can only be installed via Composer.
+
+**Requires Craft CMS 4+**
+
+Run `composer require simplicateca/selectplus:4.0.1-beta` and then enable the plugin from "Settings > Plugins"
+
+
 ## Features
 
 Think of SelectPlus like a CSS file for your dropdown fields.
@@ -42,6 +51,8 @@ This is particularly useful for fields that are used across many Matrix Block ty
 ### Sample `.json` files
 
 Sample JSON config files can be found in the `etc` folder of this repository.
+
+https://github.com/simplicateca/craft-selectplus-field/tree/develop/etc
 
 
 ## Twig Templating
@@ -273,15 +284,6 @@ It will also be possible to tell a SelectPlus field to operate in **Button Only*
 You can name the button using the `buttonOnlyLabel` field.
 
 **\-Button only mode is coming soon.**
-
-
-## Installation
-
-This early release version is not currently available on the Craft Plugin store, and can only be installed via Composer.
-
-**Requires Craft CMS 4+**
-
-Run `composer require simplicateca/selectplus` and then enable the plugin from "Settings > Plugins"
 
 
 ## Credits
