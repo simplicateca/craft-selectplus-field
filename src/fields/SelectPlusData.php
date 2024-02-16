@@ -52,15 +52,23 @@ class SelectPlusData extends \craft\base\Model
         $this->element = $settings['element'];
     }
 
+    public function __isset($name) {
+        if( $name == 'settings' ) { return true; }
+        return ( $this->data( $name ) ?? $this->setting( $name ) ?? null );
+    }
 
-    public function __get( $property ) {
 
-        if( strtolower( $property ) == 'settings' ) {
-            return array_merge( $this->setting('settings'), $this->data() );
+    public function __get( $name ) {
+
+        if( strtolower( $name ) == 'settings' ) {
+            return array_merge(
+                $this->setting('settings') ?? [],
+                $this->data() ?? []
+            );
         }
 
-        return $this->data( $property )
-            ?? $this->setting( $property )
+        return $this->data( $name )
+            ?? $this->setting( $name )
             ?? null;
     }
 
@@ -101,12 +109,12 @@ class SelectPlusData extends \craft\base\Model
 		// we default to the first field in the config file
 		$selected = $options->whereIn('value', $this->value)->first() ?? $options->first();
 
-        $settings = [ 'value' => $selected['value'] ?? '', 'label' => $selected['label'] ?? '' ];
-        $settings = array_merge( $settings, $selected['settings'] ?? [] );
+        $setting = [ 'value' => $selected['value'] ?? '', 'label' => $selected['label'] ?? '' ];
+        $setting = array_merge( $setting, $selected['settings'] ?? [] );
 
-        return $key
-            ? $selected[$key] ?? null
-            : $selected ?? [];
+        return ( $key != 'settings' )
+            ? $setting[$key] ?? null
+            : $setting ?? [];
 	}
 
 

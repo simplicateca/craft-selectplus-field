@@ -17,7 +17,7 @@ This early release version is not currently available on the Craft Plugin store,
 
 **Requires Craft CMS 4+**
 
-Run `composer require simplicateca/selectplus:4.0.1-beta` and then enable the plugin from "Settings > Plugins"
+Run `composer require simplicateca/selectplus:4.0.2-beta` and then enable the plugin from "Settings > Plugins"
 
 
 ## Features
