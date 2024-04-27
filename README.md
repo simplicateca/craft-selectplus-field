@@ -6,7 +6,7 @@ A JSON configured custom field type for Craft CMS 4+
 
 ## Overview
 
-This field presents similar to a standard Craft CMS [Dropdown Field](https://craftcms.com/docs/4.x/dropdown-fields.html).
+This field presents similar to a standard Craft CMS [Dropdown Field](https://craftcms.com/docs/5.x/reference/field-types/dropdown.html).
 
 Hiding under the hood are a bunch of features aimed at improving the content authoring experience and developer templating flexibility.
 
@@ -17,7 +17,7 @@ This early release version is not currently available on the Craft Plugin store,
 
 **Requires Craft CMS 4+**
 
-Run `composer require simplicateca/selectplus:4.0.2-beta` and then enable the plugin from "Settings > Plugins"
+Run `composer require simplicateca/selectplus:5.0.0-beta` and then enable the plugin from "Settings > Plugins"
 
 
 ## Features

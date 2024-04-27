@@ -17,7 +17,7 @@
       "docs": "https://github.com/simplicateca/craft-selectplus-field/blob/main/README.md"
     },
     "require": {
-      "craftcms/cms": "^4.0.0"
+      "craftcms/cms": "^5.0.0"
     },
     "autoload": {
       "psr-4": {
