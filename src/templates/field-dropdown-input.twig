@@ -11,6 +11,7 @@
         data-fieldname="{{ field.name }}"
     >
         <div class="selectPlusField__control">
+
             {{ forms.selectizeField({
                 name   : field.handle ~ "[value]",
                 options: optIndex,
@@ -24,7 +25,7 @@
 
             <div class="selectPlusField__inputs">
                 {% for opt in options %}
-                    {% if opt.inputs ??? null %}
+                    {% if opt.inputs ?? null %}
                         <a
                             data-field="{{field.name}}"
                             data-option="{{opt.value}}"
@@ -86,6 +87,13 @@
                             {% endif %}
 
                             <div class="selectPlusField__modalContentFields">
+
+                                {{ forms.hidden({
+                                    id   : "#{id}-inputs-#{opt.value}-json",
+                                    value: inputs | json_encode,
+                                    disabled: true
+                                }) }}
+
                                 {% for input in inputs %}
                                     {% set field = input.field|default() %}
                                     {% if field %}
@@ -93,7 +101,7 @@
                                             type   : input.type|default('text'),
                                             name   : field,
                                             label  : input.label | t('app'),
-                                            value  : value.data( field ) ??? input.default ??? null,
+                                            value  : attribute(value, field) ?? input.default ?? null,
                                             options: input.options ?? [],
                                             size   : input.size ?? null,
                                             min    : input.min  ?? null,
@@ -111,7 +119,7 @@
                                                 disabled: true,
                                                 name : input.name,
                                                 label: input.label | t('app'),
-                                                value: input.value ??? '',
+                                                value: attribute(value, field) ?? input.default ?? '',
                                                 size : input.size,
                                                 maxlength : input.maxlength,
                                                 class: 'spf__input',
@@ -127,7 +135,7 @@
                                                 type : 'number',
                                                 name : input.name,
                                                 label: input.label | t('app'),
-                                                value: input.value,
+                                                value: attribute(value, field) ?? input.default ?? input.value,
                                                 size : input.size,
                                                 min  : input.min,
                                                 max  : input.max,
@@ -143,7 +151,7 @@
                                             {{ forms.lightswitchField({
                                                 name : input.name,
                                                 label: input.label | t('app'),
-                                                on   : input.value ?? false,
+                                                on   : attribute(value, field) ?? input.default ?? input.value ?? false,
                                                 class: 'spf__input',
                                                 instructions: input.instructions,
                                                 fieldClass: input.fieldClass,
@@ -155,7 +163,7 @@
                                                 disabled: true,
                                                 name   : input.name,
                                                 label  : input.label | t('app'),
-                                                value  : input.value ?? input.options | keys | first,
+                                                value  : attribute(value, field) ?? input.default ?? input.value ?? input.options | keys | first,
                                                 options: input.options,
                                                 class: 'spf__input',
                                                 instructions: input.instructions | t('app'),
@@ -168,7 +176,7 @@
                                                 disabled: true,
                                                 name   : input.name,
                                                 label  : input.label | t('app'),
-                                                value  : input.value ?? input.options | keys | first,
+                                                value  : attribute(value, field) ?? input.default ?? input.value ?? input.options | keys | first,
                                                 options: input.options,
                                                 class: 'spf__input',
                                                 instructions: input.instructions | t('app'),

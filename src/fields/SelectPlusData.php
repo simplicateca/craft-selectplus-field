@@ -37,108 +37,69 @@ class SelectPlusData extends \craft\base\Model
     public array $element;
 
 
-    public function __construct( array $settings )
+    private array $_settings = [];
+    private array $current  = [];
+    private array $virtuals = [];
+
+    public function __construct( array $data )
     {
-        $settings = array_merge([
+        $data = array_merge([
             'value'   => '',
             'json'    => '{}',
             'config'  => '',
             'element' => null,
-        ], $settings);
+        ], $data);
 
-        $this->value   = $settings['value'];
-        $this->json    = $settings['json'];
-        $this->config  = $settings['config'];
-        $this->element = $settings['element'];
-    }
+        $this->element  = ConfigHelper::minimizeElement( $data['element'] );
+        $this->value    = $data['value'];
+        $this->json     = $data['json'];
+        $this->config   = $data['config'];
 
-    public function __isset($name) {
-        if( $name == 'settings' ) { return true; }
-        return ( $this->data( $name ) ?? $this->setting( $name ) ?? null );
-    }
+        $options = collect( ConfigHelper::load( $this->config, [
+            'value'   => $this->value,
+            'element' => $this->element,
+        ] ) );
 
+        $this->virtuals = json_decode( $this->json, true );
 
-    public function __get( $name ) {
+        $this->current  = $options->firstWhere( 'value', $this->value )
+                       ?? $options->first()
+                       ?? [];
 
-        if( strtolower( $name ) == 'settings' ) {
-            return array_merge(
-                $this->setting('settings') ?? [],
-                $this->data() ?? []
-            );
-        }
-
-        return $this->data( $name )
-            ?? $this->setting( $name )
-            ?? null;
+        $this->_settings = array_merge(
+            $this->current['settings'] ?? [],
+            $this->virtuals ?? []
+        );
     }
 
 
-	public function __toString(): string
-	{
+	public function __toString(): string{
         return (string) $this->value;
 	}
 
 
-    /**
-     * @inheritdoc
-     */
-    public function rules(): array
-    {
-        $rules = parent::rules();
-        $rules = array_merge($rules, [
+    public function __isset($name) {
+        return strtolower($name) == 'settings' || isset( $this->_settings[$name] );
+    }
+
+
+    public function __call($name, $arguments) {
+        if( (strtolower($name) == 'settings') ) return $this->_settings;
+        return isset( $this->_settings[$name] ) ? $this->_settings[$name] : null;
+    }
+
+
+    public function __get($name) {
+        if( (strtolower($name) == 'settings') ) return $this->_settings;
+        return isset( $this->_settings[$name] ) ? $this->_settings[$name] : null;
+    }
+
+
+    public function rules(): array {
+        return array_merge( parent::rules(), [
             ['value',  'string'],
             ['json',   'string'],
             ['config', 'string'],
         ]);
-
-        return $rules;
-    }
-
-
-	/**
-	 * Returns a JSON hash for the selected option (or the first option)options for a field from the JSON config -or- a single option by key
-	 *
-	 * @return object|null Either return the value from the config or null
-	 */
-	private function setting( $key = null ): mixed
-	{
-        $options = collect( ConfigHelper::load( $this->config, $this->asArray() ) );
-
-        // we want to try our best to return *something* here.
-		// so first we look for the matching value, then the first default key
-		// we default to the first field in the config file
-		$selected = $options->whereIn('value', $this->value)->first() ?? $options->first();
-
-        $setting = [ 'value' => $selected['value'] ?? '', 'label' => $selected['label'] ?? '' ];
-        $setting = array_merge( $setting, $selected['settings'] ?? [] );
-
-        return ( $key != 'settings' )
-            ? $setting[$key] ?? null
-            : $setting ?? [];
-	}
-
-
-	/**
-	 * Returns the entire input data (json) as an object or a single field from the object
-	 *
-	 * @return object|null Either return the value from the input data object or null
-	 */
-	public function data( $field = null ): mixed
-	{
-        $json = json_decode( $this->json, true );
-
-        return ( $field )
-            ? $json[$field] ?? null
-            : $json ?? [];
-	}
-
-
-    public function asArray(): array
-    {
-        return [
-            'value'   => $this->value,
-            'json'    => $this->json,
-            'element' => $this->element,
-        ];
     }
 }

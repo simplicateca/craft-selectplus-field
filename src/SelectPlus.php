@@ -6,7 +6,7 @@ use craft\web\View;
 
 use yii\base\Event;
 use craft\events\TemplateEvent;
-use craft\events\RegisterTemplateRootsEvent;
+use craft\events\RegisterTemplateRootsEvent; 
 use craft\events\RegisterComponentTypesEvent;
 
 use craft\services\Fields;
@@ -17,15 +17,7 @@ class SelectPlus extends \craft\base\Plugin
 	public static SelectPlus $instance;
 
 	public function __construct( $id, $parent = null, array $config = [] )
-	{
-		// Base template directory
-		Event::on( View::class, View::EVENT_REGISTER_CP_TEMPLATE_ROOTS, function ( RegisterTemplateRootsEvent $e ) {
-            if( is_dir($baseDir = $this->getBasePath() . DIRECTORY_SEPARATOR . 'templates') ) {
-                $e->roots[$this->id] = $baseDir;
-            }
-        });
-
-		// Set this as the global instance of this module class
+    {
 		static::setInstance($this);
 		parent::__construct($id, $parent, $config);
 	}

@@ -57,13 +57,15 @@ Craft.SelectPlusField.DocumentationModal = Garnish.Modal.extend({
  */
 Craft.SelectPlusField.InputModal = Garnish.Modal.extend({
 
-    current: null,
+    field    : null,
+    current  : null,
     namespace: null,
 
     init( modalContent = {} ) {
 
         this.namespace = modalContent.namespace ?? null
         this.current   = modalContent.current   ?? null
+        this.field     = modalContent.field     ?? null
 
         const content = Object.assign({}, {
             html : null,
@@ -133,10 +135,9 @@ Craft.SelectPlusField.InputModal = Garnish.Modal.extend({
 
     onFadeOut()
     {
-        Craft.SelectPlusField.Fields.saveModalInput(
+        Craft.SelectPlusField.Fields.saveVirtuals(
             '.selectPlusField__modalContent',
-            this.namespace,
-            this.current
+            this.namespace
         )
 
         this.$form.remove();
@@ -179,8 +180,9 @@ Craft.SelectPlusField.Fields = {
     {
         selectizeFields = document.querySelectorAll('.selectPlusField select.selectized')
         selectizeFields.forEach((field) => {
+            const selectplus = field.closest('.selectPlusField') ?? null
+            Craft.SelectPlusField.Fields.toggleVisibleOptionFields( selectplus, field.value )
             Craft.SelectPlusField.Fields.selectizeObserver( field )
-            this.toggleVisibleOptionFields( field.closest(".selectPlusField"), field.value )
         });
 
 
@@ -224,16 +226,17 @@ Craft.SelectPlusField.Fields = {
     // and display of individual setting fields
     triggerSettingsModal( link )
     {
-        const field     = link.closest('.selectPlusField') ?? null
-        const namespace = field.dataset.namespace ?? null
-        const current   = link.dataset.option ?? null
-        const fieldName = link.dataset.field ?? 'Field'
-        const title     = link.dataset.title ?? fieldName + ' Settings'
-        const wrapper   = document.querySelector( '#' + namespace + '-inputs-' + current )
+        const selectplus = link.closest('.selectPlusField') ?? null
+        const namespace  = selectplus.dataset.namespace ?? null
+        const current    = link.dataset.option ?? null
+        const fieldName  = link.dataset.field ?? 'Field'
+        const title      = link.dataset.title ?? fieldName + ' Settings'
+        const wrapper    = document.querySelector( '#' + namespace + '-inputs-' + current )
 
         if( wrapper )
         {
             new Craft.SelectPlusField.InputModal({
+                field    : selectplus,
                 title    : title,
                 current  : current,
                 namespace: namespace,
@@ -250,25 +253,30 @@ Craft.SelectPlusField.Fields = {
     selectizeObserver( field ) {
         if( field ) {
             new MutationObserver(function(mutations) {
-                if( mutations[0].target ) Craft.SelectPlusField.Fields.onChange( mutations[0].target )
-            }).observe(
-                field, { childList: true }
-            )
+                if( mutations[0].target ) Craft.SelectPlusField.Fields.onSelectizeChange( mutations[0].target )
+            }).observe( field, { childList: true } )
+
+            const selectplus = field.closest('.selectPlusField') ?? null
+            const namespace  = selectplus.dataset.namespace ?? null
+            const selected   = field.value ?? null
+            const fieldModal = '#' + namespace + "-inputs-" + selected
+
+            if( fieldModal ) {
+                this.setJsonFromFields( namespace, this.serializeInputs( fieldModal ) )
+            }
         }
     },
 
-
-    // when the value of the field changes,
-    onChange( select )
+    // when the value of the selectize field changes
+    onSelectizeChange( field )
     {
-        const field     = select.closest(".selectPlusField")
-        const namespace = field.dataset.namespace ?? null
-        const optionVal = select.value ?? null
-        const fields    = '#' + namespace + "-inputs-" + optionVal
+        const selectplus = field.closest(".selectPlusField")
+        const namespace  = selectplus.dataset.namespace ?? null
+        const optionVal  = field.value ?? null
 
         if( optionVal ) {
-            this.toggleVisibleOptionFields( field, optionVal )
-            this.setJsonFromFields( fields, namespace )
+            this.toggleVisibleOptionFields( selectplus, optionVal )
+            this.preserveMatchingVirtualFieldsValuesOnChange( namespace )
         }
     },
 
@@ -276,7 +284,7 @@ Craft.SelectPlusField.Fields = {
     toggleVisibleOptionFields( parent, value )
     {
         this.setDisplayStyle( parent, '.selectPlusField__inputs', value )
-        this.setDisplayStyle( parent, '.selectPlusField__docs', value )
+        this.setDisplayStyle( parent, '.selectPlusField__docs',   value )
     },
 
 
@@ -290,24 +298,160 @@ Craft.SelectPlusField.Fields = {
         }
     },
 
-
-    setJsonFromFields( fields, namespace )
+    // when changing the value of the primary Selectize dropdown field, if the
+    // newly selected option has some of the same virtual input fields as the
+    // previous option (and allowing the same value to be saved), we want to
+    // preserve those values between selecting dropdown changes.
+    preserveMatchingVirtualFieldsValuesOnChange( fields, namespace )
     {
-        const jsonInputField = document.querySelector('#' + namespace + '-json')
-        if( jsonInputField ) {
-            jsonInputField.value = JSON.stringify( this.serializeInputs( fields ) )
+        // here's the general gist of what's going on here.
+        //
+        // `jsonInputField` is the hidden input field that contains the JSON
+        // values we want to save for the virtual fields associated with the
+        // currently selected selectize option.
+        //
+        // `inputs` contains a JSON representation of all the input fields
+        // and options that are available for the currently selected option.
+        //
+        // `oldVals` contains the virtual field values for the PREVIOUS
+        //  selected option in the primary selectize dropdown field.
+        //
+        // `newVals` contains the virtual field values for the CURRENT
+        //  selected option in the primary selectize dropdown field.
+        //
+        // we're going to loop through jsonOptions, and for each field, if the
+        // field is in both `oldVals` and `newVals` we're going to set the value
+        // in `newVals` to match `oldVals`.
+        //
+        // For fields with multiple values (checkboxes, select, etc), we also need
+        // to verify that the `oldVal` is available in the `jsonOptions` array,
+        // otherwise we'll use the default value.
+        const virtualFieldJSON = document.querySelector('#' + namespace + '-json')
+        if( virtualFieldJSON )
+        {
+
+            const optionVal = document.querySelector( '#' + namespace + " select" ).value ?? null
+            const fields    = '#' + namespace + "-inputs-" + optionVal
+
+            const jsonOpts  = document.querySelector(fields + '-json')
+            const inputs    = jsonOpts ? JSON.parse( jsonOpts.value ) : []
+            const oldVals   = JSON.parse( virtualFieldJSON.value )
+            const newVals   = this.serializeInputs( fields )
+
+            inputs.forEach( function (input) {
+                if( ( input.field ?? null ) && ( oldVals[input.field] ?? null) )
+                {
+                    // if this field has options, we need to make sure the old value
+                    // is still available in the new options array.
+                    if( input.options ?? null )
+                    {
+                        let options = input.options
+                        let oldval  = oldVals[input.field]
+                        let allowed = false;
+
+                        if (Array.isArray(options)) {
+                            allowed = options.some(option => option.value === oldval);
+                        } else {
+                            allowed = options.hasOwnProperty(oldval);
+                        }
+
+                        if( allowed ) {
+                            newVals[input.field] = oldval
+                        }
+
+                    // if the field doesn't have options (text, lightswitch, etc),
+                    // we can just map the old value to the new value.
+                    } else {
+                        newVals[input.field] = oldVals[input.field]
+                    }
+                }
+            })
+
+            this.setJsonFromFields( namespace, newVals )
         }
     },
 
 
-    saveModalInput( fields, namespace, optionVal )
+    setJsonFromFields( namespace, fieldValues )
     {
-        this.setJsonFromFields( fields, namespace )
+        const virtualFieldJSON = document.querySelector('#' + namespace + '-json')
+        if( virtualFieldJSON ) {
 
+            const optionVal = document.querySelector( '.selectPlusField[data-namespace="' + namespace + '"] select' ).value ?? null
+            const fields    = '#' + namespace + "-inputs-" + optionVal
+            const jsonOpts  = document.querySelector(fields + '-json')
+            const inputs    = jsonOpts ? JSON.parse( jsonOpts.value ) : []
+
+            // When a virtual field has an options array, it can be defined two ways.
+            //
+            // 1) As an object, like this:
+            //
+            //      "options" : {
+            //          "normal": "Normal",
+            //          "large" : "Large",
+            //      },
+            //
+            // 2) As an array of objects, like this:
+            //
+            //      "options" : [
+            //          { "label" : "Auto Link",
+            //            "value" : "autolink",
+            //            "extravalue" : "something" }
+            //         ,{ "label" : "Summary Modal",
+            //            "value" : "modal",
+            //            "othervalue" : "anything" }
+            //      ],
+            // ]
+            //
+            // In the case of the first example, label & value are explicit, and there can be no extra field values associated
+            // with any selected option. In the second example, we can include additional fields values we want saved when
+            // that option is selected.
+            //
+            // This code is what figured that out:
+            inputs.forEach( function (input) {
+                if( ( input.field ?? null ) && ( fieldValues[input.field] ?? null ) && ( input.options ?? null ) ) {
+                    let options = input.options
+                    if (Array.isArray(options)) {
+                        let selopt = options.find(option => option.value === fieldValues[input.field]);
+                        let extras = Craft.SelectPlusField.Fields.findExtraOptionData( selopt )
+                        if( Object.keys(extras) ) {
+                            fieldValues = { ...fieldValues, ...extras };
+                        }
+                    }
+                }
+            })
+
+            virtualFieldJSON.value = JSON.stringify( fieldValues )
+        }
+    },
+
+
+    findExtraOptionData( option )
+    {
+        if( typeof option === "object" ) {
+            for ( let key in option ) {
+                if ( key === "value" || key === "label" ) {
+                    delete option[key]
+                }
+            }
+
+            return option ?? null
+        }
+
+        return null
+    },
+
+
+    saveVirtuals( fieldContainer, namespace )
+    {
+        // save the fields
+        this.setJsonFromFields( namespace, this.serializeInputs( fieldContainer ) )
+
+        // close the modal and revert cloned vitual field form
+        const optionVal    = document.querySelector( '.selectPlusField[data-namespace="' + namespace + '"] select' ).value ?? null
         const inputWrapper = document.querySelector( '#' + namespace + "-inputs-" + optionVal )
         if( inputWrapper ) {
-            inputWrapper.innerHTML = document.querySelector(fields).cloneNode(true).innerHTML
-
+            inputWrapper.innerHTML = document.querySelector(fieldContainer).cloneNode(true).innerHTML
             const elements = inputWrapper.querySelectorAll('input, select, textarea');
             for( i=0; i<elements.length; i++ ) {
                 if( elements[i].getAttribute( 'type') !== 'hidden' ) {
@@ -318,9 +462,9 @@ Craft.SelectPlusField.Fields = {
     },
 
 
-    serializeInputs( fieldContiner )
+    serializeInputs( fieldContainer )
     {
-        const fields = document.querySelector( fieldContiner ) ?? null
+        const fields = document.querySelector( fieldContainer ) ?? null
         const inputs = fields ? fields.querySelectorAll('input, select, textarea') : null
 
         if( !fields || !inputs ) return {};
