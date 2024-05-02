@@ -1,91 +1,113 @@
 /**
- * SelectPlusField - CSS
+ * selectplusfield - CSS
  */
 
-.selectPlusField {
+.selectplus {
     display: flex;
     flex-direction: column;
 }
 
-.selectPlusField__control {
+.selectplus .control {
     display: flex;
     flex-direction: row;
     gap: 8px;
-    align-items: center;
+    align-items: flex-start;
 }
 
-.selectPlusField__control .field {
-    width: 100%;
-    margin-bottom: 0;
+.selectplus .btn-help {
+    white-space:nowrap
 }
 
-.selectPlusField div.input .select {
-
+.selectplus .btn-gear {
+    cursor: pointer;
+    display: none;
+    color: #33475b;
+    font-size: 15px;
+    margin: 0 0 0 5px;
+    padding: 4px 9px;
+    border: 1px solid #d7dce2;
+    border-radius: 3px;
+    background-image: linear-gradient(#fff,#fafafa);
 }
 
-.selectPlusField__selectize {
-
+.selectplus .btn-gear:hover {
+    background-image: linear-gradient(#eee,#eaeaea);
+    color: #316bea;
 }
 
-.selectPlusField__inputs a {
-    min-width: 12px;
+.selectplus .btn-gear::after {
+    content: "settings";
+    position: relative;
+    top: 1px;
+    font-family: Craft,sans-serif;
 }
 
-.selectPlusField div.input .select select {
-
+.selectplus .tooltips {
+    margin: -12px 0 12px;
+    max-width: 420px;
 }
 
-.selectPlusField div[data-note] a {
-    white-space: nowrap;
-}
-
-.selectPlusField__docs {
-    margin: 8px 0;
-}
-
-.selectPlusField__tooltip {
+.selectplus .tip {
     padding-left: 16px;
     font-size: 13px;
     margin-top: 0;
     line-height: 1.5em;
     position: relative;
+    display: none;
 }
 
-.selectPlusField__tooltip::before {
+.selectplus .tip::before {
     content:'↳';
     position: absolute;
     left: 3px;
     top: -2px;
 }
 
-
-.selectPlusField__modalContent ul {
-    list-style: disc;
-    margin-left: 1rem;
-}
-
-.selectPlusField__modalContentFields .field {
-    padding: 24px 0;
-    margin: 0;
-    max-width: 100%;
-    min-width: 100%;
-    flex-grow: 1;
-    border-bottom: 1px solid #e0e0e0;
-}
-
-.selectPlusField__modalContent .field:last-of-type {
-    border-bottom: 0;
-}
-
-.selectPlusField__modalContentFields {
+form.modal.selectplus .body {
+    height: 100%;
+    max-height: calc(100% - 114px);
+    min-height: 180px;
     display: flex;
     flex-wrap: wrap;
     align-item: flex-start;
     justify-content: flex-start;
-    gap: 0 24px;
+    gap: 48px 36px;
+    padding: 40px 24px;
+    overflow: auto;
+    max-width: 680px;
 }
 
-.selectPlusField__modalContentFields .field.width-50 {
-    max-width: calc(50% - 12px);
-    min-width: calc(50% - 12px);
+form.modal.selectplus .body p.intro {
+    font-size: 15px;
+    line-height: 1.5em;
+}
+
+form.modal.selectplus .body .field {
+    margin: 0;
+    width: 100%;
+    min-width: 260px;
+    max-width: 100%;
+    flex-grow: 1;
+}
+
+form.modal.selectplus .body .field .select {
+    width: 100%;
+}
+
+form.modal.selectplus .body .field .select select {
+    width: 100%;
+}
+
+form.modal.selectplus .body ul {
+    list-style: disc;
+    margin-left: 1rem;
+}
+
+form.modal.selectplus .body .field.width-50 {
+    max-width: calc(50% - 18px);
+    min-width: calc(50% - 18px);
+}
+
+form.modal.selectplus .body .field.width-100 {
+    max-width: 460px !important;
 }

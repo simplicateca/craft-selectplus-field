@@ -96,40 +96,34 @@ class SelectPlusField extends Field implements PreviewableFieldInterface, Sortab
 
 	public function getInputHtml( $value, ElementInterface $element = null ): string {
 
-        $options = ConfigHelper::load( $this->configFile ?? null, [
-            'value'   => $value->value ?? null,
+        $config = ConfigHelper::load( $this->configFile, [
+            'value'   => $value->value,
             'element' => $element,
         ] );
 
-
-        $optIndex = array_combine(
-            array_column( $options, 'value' ),
-            array_column( $options, 'label' )
+        $options = array_combine(
+            array_column( $config, 'value' ),
+            array_column( $config, 'label' )
         );
 
-		$id = Craft::$app->getView()->formatInputId($this->handle);
-        $namespace = Craft::$app->getView()->namespaceInputId($id);
-		$error = false;
+		// $id = Craft::$app->getView()->formatInputId( $this->handle );
+        // $namespace = Craft::$app->getView()->namespaceInputId($id);
 
 		// what to do when we load an option that no longer exists in the field config?
-		// probably have to do something in the
-        if( $value->value && !empty($value->value) && !in_array( $value->value, array_keys( $optIndex ) ) ) {
-
-            array_unshift( $optIndex, [ 'value' => $value->value, 'label' => '[UNAVAILABLE]', 'disabled' => true ] );
-            $error = true;
-
-		 	// try to find & set a new default value ??
-			// .... TODO
+		// TODO: try to find & set a new default value ??
+        $error = ( $value->value && !empty($value->value) && !in_array( $value->value, array_keys( $options ) ) );
+        if( $error ) {
+            array_unshift( $options, [ 'value' => $value->value, 'label' => '[UNAVAILABLE]', 'disabled' => true ] );
 		}
 
         return Craft::$app->getView()->renderTemplate('selectplus/field-dropdown-input', [
 			'field' 	=> $this,
-			'id' 		=> $id,
-			'namespace' => $namespace,
-			'optIndex' 	=> $optIndex,
-			'options' 	=> $options,
+			'element' 	=> ConfigHelper::minimizeElement( $element ),
+            'options' 	=> $options,
+			'config' 	=> $config,
 			'error' 	=> $error,
-			'value' 	=> $value
+			'value' 	=> $value,
+            'configfile' => $this->configFile
 		]);
 	}
 }

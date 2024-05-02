@@ -11,13 +11,14 @@
       }
     ],
     "support": {
-      "email": "info@simplicate.ca",
+      "email" : "plugins@simplicate.ca",
       "issues": "https://github.com/simplicateca/craft-selectplus-field/issues?state=open",
       "source": "https://github.com/simplicateca/craft-selectplus-field",
-      "docs": "https://github.com/simplicateca/craft-selectplus-field/blob/main/README.md"
+      "docs"  : "https://github.com/simplicateca/craft-selectplus-field/blob/main/README.md"
     },
     "require": {
-      "craftcms/cms": "^5.0.0"
+      "craftcms/cms": "^5.0.0",
+      "nystudio107/craft-emptycoalesce": "^5.0.0"
     },
     "autoload": {
       "psr-4": {

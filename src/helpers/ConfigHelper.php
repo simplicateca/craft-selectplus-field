@@ -32,7 +32,7 @@ class ConfigHelper
         // Tell Craft to return to whatever template render mode it was in before
         $view->setTemplateMode($templateMode);
 
-        return $options;
+        return $options ? $options : [];
     }
 
 
@@ -90,23 +90,19 @@ class ConfigHelper
         // find the overall owner of this field (if it's different from the immediate element)
         // i.e. is this field attached directly to an entry element or is it part of a matrix
         // or a super table field that is itself attached to an entry element?
-        $owner = $element->owner ?? null;
-        if( $owner && get_class( $owner ) == get_class( $element ) ) {
-            $owner = null;
-        }
+        $owner = $element->primaryOwner ?? $element;
 
         return [
-            'id'     => $element->id ?? null,
-            'class'  => get_class( $element ),
-            'type'   => $element->type->handle        ?? null,
-            'field'  => $element->type->field->handle ?? null,
-            'section'=> $element->section->handle     ?? null,
-            'owner'  => $owner ? [
-                'id'     => $owner->id ?? null,
-                'class'  => get_class( $owner ),
-                'section'=> $owner->section->handle ?? null,
+            'id'      => $element->id              ?? null,
+            'type'    => $element->type->handle    ?? null,
+            'section' => $element->section->handle ?? null,
+            'field'   => $element->field->handle   ?? null,
+
+            'owner'  => [
+                'id'     => $owner->id              ?? null,
                 'type'   => $owner->type->handle    ?? null,
-            ] : null,
+                'section'=> $owner->section->handle ?? null,
+            ],
         ];
     }
 }

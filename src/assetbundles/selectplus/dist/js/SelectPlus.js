@@ -1,4 +1,8 @@
 Craft.SelectPlusField = typeof Craft.SelectPlusField === 'undefined' ? {} : Craft.SelectPlusField;
+document.addEventListener('DOMContentLoaded', () => {
+    Craft.SelectPlusField.Fields.init();
+});
+
 
 
 /**
@@ -20,17 +24,17 @@ Craft.SelectPlusField.DocumentationModal = Garnish.Modal.extend({
             html : null,
         }, modalContent )
 
-        this.$form = $('<form class="modal fitted" method="post" accept-charset="UTF-8"/>').appendTo(Garnish.$bod);
+        this.modal.$form = $('<form class="modal fitted selectplus" method="post" accept-charset="UTF-8"/>').appendTo(Garnish.$bod);
 
-        var $header = $('<div class="header"><h1>' + content.title + '</h1></header>').appendTo(this.$form);
+        $('<div class="header"><h1>' + content.title + '</h1></header>').appendTo(this.modal.$form);
 
         if( content.html ) {
-            this.$body = $('<div class="body" style="padding: 24px; height: 100%; max-height: calc(100% - 120px); overflow:auto; max-width: 740px;"><div class="selectPlusField__modalContent">' + content.html + '</div></div>').appendTo(this.$form);
+            this.$body = $('<div class="body">' + content.html + '</div>').appendTo(this.modal.$form);
         }
 
-        var $footer = $('<div class="footer"/>').appendTo(this.$form);
+        const $footer = $('<div class="footer"/>').appendTo(this.modal.$form);
 
-        var $mainBtnGroup = $('<div class="buttons right"/>').appendTo($footer);
+        const $mainBtnGroup = $('<div class="buttons right"/>').appendTo($footer);
 
         if( content.url ) {
             this.$moreBtn = $('<a href="' + content.url + '" target="_blank" class="btn submit">' + Craft.t('selectplus', content.more) + '</a>').appendTo($mainBtnGroup);
@@ -40,13 +44,13 @@ Craft.SelectPlusField.DocumentationModal = Garnish.Modal.extend({
         this.$cancelBtn   = $('<input type="button" class="btn" value="' + Craft.t('app', 'Close') + '"/>').appendTo($mainBtnGroup);
         this.addListener(this.$cancelBtn, 'click', 'onFadeOut');
 
-        Craft.initUiElements(this.$form);
+        Craft.initUiElements(this.modal.$form);
 
-        this.base(this.$form);
+        this.base(this.modal.$form);
     },
 
     onFadeOut() {
-        this.$form.remove();
+        this.modal.$form.remove();
         this.$shade.remove();
     }
 });
@@ -57,91 +61,62 @@ Craft.SelectPlusField.DocumentationModal = Garnish.Modal.extend({
  */
 Craft.SelectPlusField.InputModal = Garnish.Modal.extend({
 
-    field    : null,
-    current  : null,
-    namespace: null,
+    field: null,
 
-    init( modalContent = {} ) {
+    init( settings = {} ) {
 
-        this.namespace = modalContent.namespace ?? null
-        this.current   = modalContent.current   ?? null
-        this.field     = modalContent.field     ?? null
+        content = Object.assign({}, {
+            title : 'Field Settings',
+            html  : null,
+        }, settings )
 
-        const content = Object.assign({}, {
-            html : null,
-            title: 'Field Settings',
-            json : '{}',
-        }, modalContent )
+        this.field = settings.field ?? null
 
-        // modal header and body
-        this.$form = $('<form class="modal fitted" method="post" accept-charset="UTF-8"/>').appendTo(Garnish.$bod);
+        // the modal element is actually the <form> tag
+        this.$form = $('<form class="modal fitted selectplus fields" accept-charset="UTF-8"/>').appendTo(Garnish.$bod);
+
+        // modal header
+        // todo: add a close button here
         $('<div class="header"><h1>' + content.title + '</h1></header>').appendTo(this.$form);
-        $('<div class="body" style="padding: 24px; overflow:auto; max-width: 620px;"><div class="selectPlusField__modalContent">' + content.html + '</div></div>').appendTo(this.$form);
 
-        // footer and buttons
-        var $footer = $('<div class="footer"/>').appendTo(this.$form);
-        var $mainBtnGroup = $('<div class="buttons right"/>').appendTo($footer);
-        this.$saveBtn = $('<input type="button" class="btn" value="' + Craft.t('app', 'Close') + '"/>').appendTo($mainBtnGroup);
-        this.addListener(this.$saveBtn, 'click', 'onFadeOut');
+        // modal body (input fields)
+        const $body = $( '<div class="body"></div>').appendTo(this.$form);
+        $(content.html).appendTo($body);
 
-        // init the modal
+        // bottom close "message/button"
+        const $footerclose = $('<input type="button" class="close" value="' + Craft.t('app', 'Changes automatically saved on close.') + '"/>')
+        this.addListener( $footerclose, 'click', 'onFadeOut');
+
+        // modal footer
+        const $footer = $('<div class="footer"/>').appendTo(this.$form);
+        $footerclose.appendTo($footer);
+
+        // set starting values
+        const values = settings.values ?? {};
+        for (const key in values) {
+            const input = this.$form[0].querySelector(`[name$="[${key}]"]`);
+            if (input) {
+                if( input.tagName === 'SELECT' ) {
+                    const optionExists = Array.from(input.options).some(option => option.value === values[key]);
+                    if (optionExists) {
+                        input.value = values[key];
+                    }
+                } else {
+                    input.value = values[key];
+                }
+            }
+        }
+
+        // open the modal
         Craft.initUiElements(this.$form);
         this.base(this.$form);
-
-        // make sure the form values are correct
-        this.setStartingFieldValues( content.json )
     },
 
 
-    // make sure when the form is moved from the body to the modal,
-    // that all the inputs are populated properly
-    setStartingFieldValues( jsonString )
-    {
-        const json    = JSON.parse( jsonString )
-        const modal   = document.querySelector( '.selectPlusField__modalContent' )
-        const fields  = modal.querySelectorAll('input, select, textarea')
-
-        if( json && fields ) {
-            fields.forEach( function (input) {
-                input.disabled = false
-                if( input.name ) {
-                    if( match = input.name.match(/\[([^[\]]+)\]$/) ) {
-                        if( input.type === 'checkbox' || input.type === 'radio' ) {
-                            input.checked = ( json[match[1]] == input.value )
-                        } else {
-                            input.value = json[match[1]]
-                        }
-                    }
-                }
-            });
-        }
-
-        // remove the `noteditable` class from lightswitches which prevents user interaction
-        const switchs = modal.querySelectorAll('button.lightswitch.noteditable')
-        if( switchs ) {
-            switchs.forEach( function (lightswitch) {
-                lightswitch.classList.remove('noteditable')
-            });
-        }
-
-        // remove the disabled class from radiogroups for the same reason
-        const radiogroups = modal.querySelectorAll('div.radio-group.disabled')
-        if( radiogroups ) {
-            radiogroups.forEach( function (group) {
-                group.classList.remove('disabled')
-            });
-        }
-    },
-
-    onFadeOut()
-    {
-        Craft.SelectPlusField.Fields.saveVirtuals(
-            '.selectPlusField__modalContent',
-            this.namespace
-        )
-
-        this.$form.remove();
-        this.$shade.remove();
+    onFadeOut() {
+        Craft.SelectPlusField.Fields.saveVirtuals( this.$form, this.field )
+        this.$form.remove()
+        this.$shade.remove()
     }
 });
 
@@ -152,50 +127,31 @@ Craft.SelectPlusField.InputModal = Garnish.Modal.extend({
  */
 Craft.SelectPlusField.Fields = {
     init() {
-        this.monitorSelectizeFields()
-        this.jqueryListeners()
+        this.monitorSelects()
+        this.monitorButtons()
     },
 
-    // jQuery is <fart> but it makes adding the click listeners way easier,
-    // particularly when it comes to not having to think about adding listeners
-    // for dynamically added rows (matrix, etc.)
-    jqueryListeners()
-    {
-        (function($) {
-            $(document).on('keypress click', '.selectPlusField__inputs a.settings', function(e) {
-                e.preventDefault();
-                Craft.SelectPlusField.Fields.triggerSettingsModal( e.target )
-            });
-
-            $(document).on('keypress click', '.selectPlusField__docs a', function(e) {
-                e.preventDefault();
-                Craft.SelectPlusField.Fields.triggerDocumentationModal( e.target )
-            });
-        })(jQuery);
-    },
-
-    // Adds onChange() listeners to existing selectize fields, and creates
-    // listeners to do the same when new selectize fields added to the page
-    monitorSelectizeFields()
-    {
-        selectizeFields = document.querySelectorAll('.selectPlusField select.selectized')
+    monitorSelects() {
+        // setup selectize fields that existed on the page when it loaded
+        // i.e. editing an entry type directly that uses a selectplus field
+        const selectizeFields = document.querySelectorAll('.selectplus select.selectized')
         selectizeFields.forEach((field) => {
-            const selectplus = field.closest('.selectPlusField') ?? null
-            Craft.SelectPlusField.Fields.toggleVisibleOptionFields( selectplus, field.value )
-            Craft.SelectPlusField.Fields.selectizeObserver( field )
+            Craft.SelectPlusField.Fields.setupSelect( field )
         });
 
 
-        // create listeners for new selectize fields added to the page (matrix, etc.)
+        // listener for new selectize fields added to the page dynamically, i.e. via
+        // matrix fields or elements loaded via slideout / modal
         new MutationObserver(function(mutations) {
             mutations.forEach(function(mutation) {
                 if( mutation.addedNodes.length > 0 ) {
-                    mutation.addedNodes.forEach(function(node) {
-                        if( node.classList
-                            && node.classList.contains('selectized')
-                            && node.tagName === 'SELECT'
-                            && node.parentNode.classList.contains('selectPlusField__selectize') ) {
-                            Craft.SelectPlusField.Fields.selectizeObserver( node )
+                    mutation.addedNodes.forEach(function(field) {
+                        if( field.classList
+                         && field.classList.contains('selectized')
+                         && field.tagName === 'SELECT'
+                         && field.parentNode.classList.contains('selectize')
+                        ) {
+                            Craft.SelectPlusField.Fields.setupSelect( field )
                         }
                     })
                 }
@@ -206,8 +162,92 @@ Craft.SelectPlusField.Fields = {
     },
 
 
-    // Loads the documentation modal
-    triggerDocumentationModal( link ) {
+    // setup a selectplus field the first time we see one
+    setupSelect( field ) {
+        const selectplus = field ? field.closest('.selectplus') : null
+        if( selectplus ) {
+
+            // toggle any tooltips + modal buttons
+            this.toggleButtons( selectplus, field.value )
+
+            // watch for changes
+            new MutationObserver(function(mutations) {
+                if( mutations[0].target ) Craft.SelectPlusField.Fields.changeSelect( mutations[0].target )
+            }).observe( field, { childList: true } )
+
+            // setup our onload defaults
+            const json = selectplus.querySelector('input[type="hidden"][name$="[json]"]')
+            const gear = selectplus.querySelector('.gears .btn-gear[data-value="'+field.value+'"]')
+            if( json && gear ) {
+                const template = document.querySelector( 'template[data-modal="'+gear.dataset.modal+'"]' )
+                if( template ) {
+                    const values = Object.assign({},
+                        this.virtualDefaults( template.content.cloneNode(true) ),
+                        JSON.parse( json.value )
+                    )
+                    json.value = JSON.stringify( values )
+                }
+            }
+
+            // this fixes a weird UI glitch where .. the first selectize in a slide out panel would start open.
+            // as best as i can tell, this was only happening if the `Title` field is disabled for the entry
+            // type being edited. I *see* the issue on a fresh install of Craft 5, but it was self correcting
+            // by the time the panel fully openned. This is my attempt to replicate the autocorrect, but it's
+            // also not the end of the world if it doesn't work. It doesn't break anything, it's just annoying
+            const $select = selectplus.querySelector( 'select.selectized' );
+            if( $select ) {
+                setTimeout(() => { $select.selectize.blur(); }, 25 );
+            }
+        }
+    },
+
+
+    // when the value of the selectize field changes
+    changeSelect( field ) {
+        const selectplus = field ? field.closest('.selectplus') : null
+        if( selectplus ) {
+            this.toggleButtons( field.closest(".selectplus"), field.value  )
+        }
+    },
+
+
+
+    monitorButtons() {
+        // jQuery is <fart> but it since selectize is already based on it, this does
+        // make setting click listeners a little easier.
+        (function($) {
+            $(document).on('keypress click', '.selectplus .btn-gear', function(e) {
+                e.preventDefault();
+                Craft.SelectPlusField.Fields.buttonSettings( e.target )
+            });
+
+            $(document).on('keypress click', '.selectplus .btn-help', function(e) {
+                e.preventDefault();
+                Craft.SelectPlusField.Fields.buttonTooltip( e.target )
+            });
+        })(jQuery);
+    },
+
+
+    toggleButtons( selectplus, value ) {
+        // toggle visibility of inline tooltips & modal buttons for each select <option>
+        const gears = selectplus.querySelectorAll( '.gears' );
+        if( gears && gears[0] && gears[0].children ) {
+            Array.from(gears[0].children).forEach((btn) => {
+                btn.style.display = ( btn.dataset.value == value ) ? 'flex' : 'none';
+            });
+        }
+
+        const tooltips = selectplus.querySelectorAll( '.tooltips' );
+        if( tooltips && tooltips[0] && tooltips[0].children ) {
+            Array.from(tooltips[0].children).forEach((tip) => {
+                tip.style.display = ( tip.dataset.value == value ) ? 'flex' : 'none';
+            });
+        }
+    },
+
+
+    buttonTooltip( link ) {
 
         const parent  = link.closest('div.note')
 
@@ -222,271 +262,66 @@ Craft.SelectPlusField.Fields = {
     },
 
 
-    // Loads the settings modal and manages the serialization
-    // and display of individual setting fields
-    triggerSettingsModal( link )
+    buttonSettings( link )
     {
-        const selectplus = link.closest('.selectPlusField') ?? null
-        const namespace  = selectplus.dataset.namespace ?? null
-        const current    = link.dataset.option ?? null
-        const fieldName  = link.dataset.field ?? 'Field'
-        const title      = link.dataset.title ?? fieldName + ' Settings'
-        const wrapper    = document.querySelector( '#' + namespace + '-inputs-' + current )
+        const selectplus = link ? link.closest('.selectplus') :  null
+        if( selectplus ) {
+            const modal    = link.dataset.modal ?? null
+            const title    = link.dataset.title ?? 'Settings'
+            const template = document.querySelector( 'template[data-modal="'+modal+'"]' )
 
-        if( wrapper )
-        {
-            new Craft.SelectPlusField.InputModal({
-                field    : selectplus,
-                title    : title,
-                current  : current,
-                namespace: namespace,
-                html     : wrapper.cloneNode(true).innerHTML,
-                json     : document.querySelector('#' + namespace + '-json').value ?? '{}'
-            })
-
-            wrapper.innerHTML = '' // if we don't do this, radiogroups get fucky
-        }
-    },
-
-
-    // observe a selectize field for changes
-    selectizeObserver( field ) {
-        if( field ) {
-            new MutationObserver(function(mutations) {
-                if( mutations[0].target ) Craft.SelectPlusField.Fields.onSelectizeChange( mutations[0].target )
-            }).observe( field, { childList: true } )
-
-            const selectplus = field.closest('.selectPlusField') ?? null
-            const namespace  = selectplus.dataset.namespace ?? null
-            const selected   = field.value ?? null
-            const fieldModal = '#' + namespace + "-inputs-" + selected
-
-            if( fieldModal ) {
-                this.setJsonFromFields( namespace, this.serializeInputs( fieldModal ) )
+            if( template ) {
+                let json = selectplus.querySelector('input[type="hidden"][name$="[json]"]')
+                new Craft.SelectPlusField.InputModal({
+                    field : selectplus,
+                    title : title,
+                    values: JSON.parse( json.value ?? '' ),
+                    html  : template.content.cloneNode(true),
+                })
             }
         }
     },
 
-    // when the value of the selectize field changes
-    onSelectizeChange( field )
-    {
-        const selectplus = field.closest(".selectPlusField")
-        const namespace  = selectplus.dataset.namespace ?? null
-        const optionVal  = field.value ?? null
+    virtualDefaults( fields ) {
+        $form = $('<form class="modal fitted selectplus fields" accept-charset="UTF-8"/>');
+        $(fields).appendTo($form);
+        const $inputs = $form[0] ? $form[0].querySelectorAll('input, select, textarea') : null
+        return this.serialize( $inputs )
+    },
 
-        if( optionVal ) {
-            this.toggleVisibleOptionFields( selectplus, optionVal )
-            this.preserveMatchingVirtualFieldsValuesOnChange( namespace )
+    saveVirtuals( $form, $field )
+    {
+        const $inputs = $form[0] ? $form[0].querySelectorAll('input, select, textarea') : null
+        let values = this.serialize( $inputs )
+
+        const $json = $field ? $field.querySelector('input[type="hidden"][name$="[json]"]') : null
+        if( $json ) {
+            $json.value = JSON.stringify( values )
         }
     },
 
 
-    toggleVisibleOptionFields( parent, value )
-    {
-        this.setDisplayStyle( parent, '.selectPlusField__inputs', value )
-        this.setDisplayStyle( parent, '.selectPlusField__docs',   value )
-    },
+    serialize( fields ) {
+        let values = {};
+        if( !fields || !fields.length ) { return values; }
 
-
-    setDisplayStyle( parent, selector, value )
-    {
-        const elements = parent.querySelectorAll( selector );
-        if( elements && elements[0] && elements[0].children ) {
-            Array.from(elements[0].children).forEach((element) => {
-                element.style.display = (element.dataset.option == value) ? 'flex' : 'none';
-            });
-        }
-    },
-
-    // when changing the value of the primary Selectize dropdown field, if the
-    // newly selected option has some of the same virtual input fields as the
-    // previous option (and allowing the same value to be saved), we want to
-    // preserve those values between selecting dropdown changes.
-    preserveMatchingVirtualFieldsValuesOnChange( fields, namespace )
-    {
-        // here's the general gist of what's going on here.
-        //
-        // `jsonInputField` is the hidden input field that contains the JSON
-        // values we want to save for the virtual fields associated with the
-        // currently selected selectize option.
-        //
-        // `inputs` contains a JSON representation of all the input fields
-        // and options that are available for the currently selected option.
-        //
-        // `oldVals` contains the virtual field values for the PREVIOUS
-        //  selected option in the primary selectize dropdown field.
-        //
-        // `newVals` contains the virtual field values for the CURRENT
-        //  selected option in the primary selectize dropdown field.
-        //
-        // we're going to loop through jsonOptions, and for each field, if the
-        // field is in both `oldVals` and `newVals` we're going to set the value
-        // in `newVals` to match `oldVals`.
-        //
-        // For fields with multiple values (checkboxes, select, etc), we also need
-        // to verify that the `oldVal` is available in the `jsonOptions` array,
-        // otherwise we'll use the default value.
-        const virtualFieldJSON = document.querySelector('#' + namespace + '-json')
-        if( virtualFieldJSON )
-        {
-
-            const optionVal = document.querySelector( '#' + namespace + " select" ).value ?? null
-            const fields    = '#' + namespace + "-inputs-" + optionVal
-
-            const jsonOpts  = document.querySelector(fields + '-json')
-            const inputs    = jsonOpts ? JSON.parse( jsonOpts.value ) : []
-            const oldVals   = JSON.parse( virtualFieldJSON.value )
-            const newVals   = this.serializeInputs( fields )
-
-            inputs.forEach( function (input) {
-                if( ( input.field ?? null ) && ( oldVals[input.field] ?? null) )
-                {
-                    // if this field has options, we need to make sure the old value
-                    // is still available in the new options array.
-                    if( input.options ?? null )
-                    {
-                        let options = input.options
-                        let oldval  = oldVals[input.field]
-                        let allowed = false;
-
-                        if (Array.isArray(options)) {
-                            allowed = options.some(option => option.value === oldval);
-                        } else {
-                            allowed = options.hasOwnProperty(oldval);
-                        }
-
-                        if( allowed ) {
-                            newVals[input.field] = oldval
-                        }
-
-                    // if the field doesn't have options (text, lightswitch, etc),
-                    // we can just map the old value to the new value.
-                    } else {
-                        newVals[input.field] = oldVals[input.field]
-                    }
-                }
-            })
-
-            this.setJsonFromFields( namespace, newVals )
-        }
-    },
-
-
-    setJsonFromFields( namespace, fieldValues )
-    {
-        const virtualFieldJSON = document.querySelector('#' + namespace + '-json')
-        if( virtualFieldJSON ) {
-
-            const optionVal = document.querySelector( '.selectPlusField[data-namespace="' + namespace + '"] select' ).value ?? null
-            const fields    = '#' + namespace + "-inputs-" + optionVal
-            const jsonOpts  = document.querySelector(fields + '-json')
-            const inputs    = jsonOpts ? JSON.parse( jsonOpts.value ) : []
-
-            // When a virtual field has an options array, it can be defined two ways.
-            //
-            // 1) As an object, like this:
-            //
-            //      "options" : {
-            //          "normal": "Normal",
-            //          "large" : "Large",
-            //      },
-            //
-            // 2) As an array of objects, like this:
-            //
-            //      "options" : [
-            //          { "label" : "Auto Link",
-            //            "value" : "autolink",
-            //            "extravalue" : "something" }
-            //         ,{ "label" : "Summary Modal",
-            //            "value" : "modal",
-            //            "othervalue" : "anything" }
-            //      ],
-            // ]
-            //
-            // In the case of the first example, label & value are explicit, and there can be no extra field values associated
-            // with any selected option. In the second example, we can include additional fields values we want saved when
-            // that option is selected.
-            //
-            // This code is what figured that out:
-            inputs.forEach( function (input) {
-                if( ( input.field ?? null ) && ( fieldValues[input.field] ?? null ) && ( input.options ?? null ) ) {
-                    let options = input.options
-                    if (Array.isArray(options)) {
-                        let selopt = options.find(option => option.value === fieldValues[input.field]);
-                        let extras = Craft.SelectPlusField.Fields.findExtraOptionData( selopt )
-                        if( Object.keys(extras) ) {
-                            fieldValues = { ...fieldValues, ...extras };
-                        }
-                    }
-                }
-            })
-
-            virtualFieldJSON.value = JSON.stringify( fieldValues )
-        }
-    },
-
-
-    findExtraOptionData( option )
-    {
-        if( typeof option === "object" ) {
-            for ( let key in option ) {
-                if ( key === "value" || key === "label" ) {
-                    delete option[key]
-                }
-            }
-
-            return option ?? null
-        }
-
-        return null
-    },
-
-
-    saveVirtuals( fieldContainer, namespace )
-    {
-        // save the fields
-        this.setJsonFromFields( namespace, this.serializeInputs( fieldContainer ) )
-
-        // close the modal and revert cloned vitual field form
-        const optionVal    = document.querySelector( '.selectPlusField[data-namespace="' + namespace + '"] select' ).value ?? null
-        const inputWrapper = document.querySelector( '#' + namespace + "-inputs-" + optionVal )
-        if( inputWrapper ) {
-            inputWrapper.innerHTML = document.querySelector(fieldContainer).cloneNode(true).innerHTML
-            const elements = inputWrapper.querySelectorAll('input, select, textarea');
-            for( i=0; i<elements.length; i++ ) {
-                if( elements[i].getAttribute( 'type') !== 'hidden' ) {
-                    elements[i].disabled = true;
-                }
-            }
-        }
-    },
-
-
-    serializeInputs( fieldContainer )
-    {
-        const fields = document.querySelector( fieldContainer ) ?? null
-        const inputs = fields ? fields.querySelectorAll('input, select, textarea') : null
-
-        if( !fields || !inputs ) return {};
-
-        let data = {};
-        inputs.forEach( function (input) {
+        fields.forEach( (input) => {
             if( input.name ) {
-                if( match = input.name.match(/\[([^[\]]+)\]$/) ) {
-                    if( input.type === 'checkbox' || input.type === 'radio' ) {
-                        data[match[1]] = input.checked ? input.value : data[match[1]];
+                const match = input.name.match(/\[([^[\]]+)\]$/)
+                if( match ) {
+                    if( input.type === 'checkbox' || input.type === 'radiogroup' ) {
+                        values[match[1]] = input.checked ? input.value : values[match[1]];
+                    } else if( input.tagName === 'SELECT' ) {
+                        const option = Object.assign({}, input.options[input.selectedIndex].dataset ?? null )
+                        values[match[1]] = input.value;
+                        values = Object.assign({}, values, option);
                     } else {
-                        data[match[1]] = input.value;
+                        values[match[1]] = input.value;
                     }
                 }
             }
-        });
+        } );
 
-        return data;
+        return values;
     }
 }
-
-
-document.addEventListener('DOMContentLoaded', () => {
-    Craft.SelectPlusField.Fields.init();
-});

@@ -6,7 +6,7 @@ use craft\web\View;
 
 use yii\base\Event;
 use craft\events\TemplateEvent;
-use craft\events\RegisterTemplateRootsEvent; 
+// use craft\events\RegisterTemplateRootsEvent;
 use craft\events\RegisterComponentTypesEvent;
 
 use craft\services\Fields;

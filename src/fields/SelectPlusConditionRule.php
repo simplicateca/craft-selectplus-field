@@ -16,7 +16,7 @@ class SelectPlusConditionRule extends BaseMultiSelectConditionRule implements Fi
 
     protected function options(): array
     {
-        $field = $this->_field;
+        $field = $this->field();
         $options = ConfigHelper::options( $field->configFile );
         return $options->all() ?? [];
     }
@@ -38,7 +38,7 @@ class SelectPlusConditionRule extends BaseMultiSelectConditionRule implements Fi
     {
         if ($value instanceof MultiOptionsFieldData) {
             /** @phpstan-ignore-next-line */
-            $value = array_map( fn(OptionData $option) => $option->value, (array)$value );
+            $value = array_map(fn(OptionData $option) => $option->value, (array)$value);
         } elseif ($value instanceof SingleOptionFieldData) {
             $value = $value->value;
         }

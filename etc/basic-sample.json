@@ -2,8 +2,8 @@
     {
         "label": "Option One",
         "value": "one",
-        "docs": {
-            "tooltip": "Lorem ipsum about option one..."
+        "tooltip": {
+            "inline": "Lorem ipsum about option one..."
         },
         "settings": {
             "template" : "_layouts/basic.twig",
@@ -14,8 +14,8 @@
     {
         "label": "Option Two",
         "value": "two",
-        "docs": {
-            "tooltip": "Lorem ipsum about option two..."
+        "tooltip": {
+            "inline": "Lorem ipsum about option two..."
         },
         "settings": {
             "template" : "_layouts/basic.twig",
@@ -26,8 +26,8 @@
     {
         "label": "Option Three",
         "value": "three",
-        "docs": {
-            "tooltip": "Lorem ipsum about option three..."
+        "tooltip": {
+            "inline": "Lorem ipsum about option three..."
         },
         "settings": {
             "template" : "_layouts/complex.twig",

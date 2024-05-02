@@ -1,195 +1,206 @@
+{## Don't bother generating the field if we can't load the config ##}
+{% if config ??? null %}
+
+{## Native Craft macro library for creating <form> input elements ##}
 {% import "_includes/forms" as forms %}
 
-{% if not options %}
-	<p class="error">The config file associated with this field is missing or corrupt. Contact your CMS admin.</p>
-{% endif %}
+<div
+    class="selectplus"
+    data-field="{{ field.handle }}"
+>
+    {## Selectize Dropdown ##}
+    <div class="control">
+        {{ forms.selectizeField({
+            name   : field.handle ~ "[value]",
+            options: options,
+            errors : error ? ["Make a new selection. Previous option unavailable."] : false,
+            class  : 'selectize',
+            value  : value.value ??? null,
+            selectizeOptions: {
+                highlight: false,
+            }
+        }) }}
 
-{% if options %}
-	<div
-        class="selectPlusField"
-        data-namespace="{{ namespace }}"
-        data-fieldname="{{ field.name }}"
-    >
-        <div class="selectPlusField__control">
-
-            {{ forms.selectizeField({
-                name   : field.handle ~ "[value]",
-                options: optIndex,
-                value  : value.value ?? optIndex|first.value ?? null,
-                errors : error ? ["Make a new selection. Previous option unavailable."] : false,
-                class  : 'selectPlusField__selectize',
-                selectizeOptions: {
-                    highlight: false,
-                }
-            }) }}
-
-            <div class="selectPlusField__inputs">
-                {% for opt in options %}
-                    {% if opt.inputs ?? null %}
-                        <a
-                            data-field="{{field.name}}"
-                            data-option="{{opt.value}}"
-                            data-title="{{opt.docs.modalTitle ?? opt.label}}"
-                            tabindex="0"
-                            class="settings icon"
-                            title="Extra Settings"
-                            aria-label="Extra Settings for {{opt.label}}"
-                            role="button"
-                            style="display: none;"
-                        ></a>
-                    {% endif %}
-                {% endfor %}
-
-                {{ forms.hidden({
-                    id   : id ~ '-json',
-                    name : field.handle ~ "[json]",
-                    value: value.json,
-                }) }}
-            </div>
+        {## Gear Buttons (to load modal) ##}
+        <div class="gears">
+            {% for opt in config %}
+                {% if opt.inputs ?? null %}
+                    <button
+                        data-modal='{{ "#{field.handle}__#{opt.value}" | lower }}__settings'
+                        data-value="{{opt.value}}"
+                        data-title="{{opt.tooltip.title ?? opt.label ~ ' Settings'}}"
+                        class="btn btn-gear"
+                        role="button"
+                        type="button"></button>
+                {% endif %}
+            {% endfor %}
         </div>
+    </div>
 
-		{% if options ?? null %}
-            <div class="selectPlusField__docs">
-                {% for opt in options %}
+    <div class="tooltips">
+        {% for opt in config %}
+            {% set tooltip = opt.tooltip.inline ?? null %}
+            {% set title   = opt.tooltip.title  ?? "Documentation" %}
+            {% set html    = opt.tooltip.html   ?? null %}
+            {% set url     = opt.tooltip.url    ?? null %}
+            {% set more    = opt.tooltip.more   ?? 'More&thinsp;→'|t %}
 
-                    {% set fieldName = field.name ?? null %}
+            {% if tooltip %}
+                <div
+                    data-value="{{opt.value}}"
+                    data-title="{{title|e('html_attr')}}"
+                    data-html="{{html|e('html_attr')}}"
+                    data-url="{{url|e('html_attr')}}"
+                    data-more="{{more|e('html_attr')}}"
+                    class="tip"
+                >
+                    {{ tooltip | raw | widont }}
 
-                    {% set display = ( value == opt.value or (loop.first and not value) ) ? 'flex' : 'none' %}
-                    {% set tooltip = opt.docs.tooltip ?? null %}
-                    {% set title   = opt.docs.title   ?? "#{fieldName}: #{opt.label} (Resources)" %}
-                    {% set html    = opt.docs.html    ?? null %}
-                    {% set url     = opt.docs.url     ?? null %}
-                    {% set more    = opt.docs.more    ?? 'More&thinsp;→'|t %}
-
-                    {% if tooltip %}
-                        <div
-                            data-option="{{opt.value}}"
-                            data-html="{{html|e('html_attr')}}"
-                            data-title="{{title|e('html_attr')}}"
-                            data-url="{{url|e('html_attr')}}"
-                            data-more="{{more|e('html_attr')}}"
-                            class="selectPlusField__tooltip"
-                            style="display: {{display}};"
-                            >
-                                {{ tooltip | raw | widont }}
-
-                                {% if html %}
-                                    <a href='{{url??'#'}}' style='white-space:nowrap'>{{'More&thinsp;→'|t}}→</a>
-                                {% endif %}
-                        </div>
+                    {% if html %}
+                        <a href='{{url??'#'}}' class="btn-help">{{'More&thinsp;→'|t}}→</a>
                     {% endif %}
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
 
-                    {% set inputs = opt.inputs ?? [] %}
-                    {% if inputs %}
-                        <div id="{{ id }}-inputs-{{opt.value}}" style="display: none;">
-                            {% if opt.docs.modalIntro ?? null %}
-                                <p>{{ opt.docs.modalIntro }}</p>
-                            {% endif %}
+    {## Virtual Inputs ##}
+    {% for opt in config | filter(o => o.inputs ?? null) %}
+        {{ _self.virtualinputs( field, opt ) }}
+    {% endfor %}
 
-                            <div class="selectPlusField__modalContentFields">
+    {## JSON encoded values of Virtual Inputs associated with the selected option ##}
+    {# {{ forms.hidden({ id: "#{id}-json", name: "#{field.handle}[json]", value: value.json }) }} #}
+    {{ forms.hidden({ name: "#{field.handle}[json]", value: value.json }) }}
+</div>
 
-                                {{ forms.hidden({
-                                    id   : "#{id}-inputs-#{opt.value}-json",
-                                    value: inputs | json_encode,
-                                    disabled: true
-                                }) }}
+{## Field Config Error ##}
+{% else %}<p class="error">The JSON config for this field is missing or corrupt. Talk to your CMS admin.</p>{% endif %}
 
-                                {% for input in inputs %}
-                                    {% set field = input.field|default() %}
-                                    {% if field %}
-                                        {% set input = {
-                                            type   : input.type|default('text'),
-                                            name   : field,
-                                            label  : input.label | t('app'),
-                                            value  : attribute(value, field) ?? input.default ?? null,
-                                            options: input.options ?? [],
-                                            size   : input.size ?? null,
-                                            min    : input.min  ?? null,
-                                            max    : input.max  ?? null,
-                                            max    : input.max  ?? null,
-                                            step   : input.step ?? null,
-                                            maxlength   : input.maxlength    ?? 255,
-                                            placeholder : input.placeholder  ?? null | t('app'),
-                                            instructions: input.instructions ?? null | t('app'),
-                                            fieldClass  : ( input.fieldClass ?? null ) ? 'field ' ~ input.fieldClass : 'field width-100',
-                                        } %}
 
-                                        {% if input.type == 'text' %}
-                                            {{ forms.textField({
-                                                disabled: true,
-                                                name : input.name,
-                                                label: input.label | t('app'),
-                                                value: attribute(value, field) ?? input.default ?? '',
-                                                size : input.size,
-                                                maxlength : input.maxlength,
-                                                class: 'spf__input',
-                                                placeholder : input.placeholder | t('app'),
-                                                instructions: input.instructions | t('app'),
-                                                fieldClass: input.fieldClass,
-                                            }) }}
-                                        {% endif %}
+{## Virtual Input Modal Contents ##}
+{% macro virtualinputs( field, opt ) %}
+    <template data-modal='{{ "#{field.handle}__#{opt.value}" | lower }}__settings'>
 
-                                        {% if input.type == 'number' %}
-                                            {{ forms.textField({
-                                                disabled: true,
-                                                type : 'number',
-                                                name : input.name,
-                                                label: input.label | t('app'),
-                                                value: attribute(value, field) ?? input.default ?? input.value,
-                                                size : input.size,
-                                                min  : input.min,
-                                                max  : input.max,
-                                                step : input.step,
-                                                class: 'spf__input',
-                                                placeholder : input.placeholder | t('app'),
-                                                instructions: input.instructions | t('app'),
-                                                fieldClass: input.fieldClass,
-                                            }) }}
-                                        {% endif %}
+        {## intro text ##}
+        {% if opt.tooltip.modal ?? null %}<p class='intro'>{{ opt.tooltip.modal | striptags }}</p>{% endif %}
 
-                                        {% if input.type == 'lightswitch' %}
-                                            {{ forms.lightswitchField({
-                                                name : input.name,
-                                                label: input.label | t('app'),
-                                                on   : attribute(value, field) ?? input.default ?? input.value ?? false,
-                                                class: 'spf__input',
-                                                instructions: input.instructions,
-                                                fieldClass: input.fieldClass,
-                                            }) }}
-                                        {% endif %}
+        {## virtual inputs ##}
+        {% for input in opt.inputs | filter(o => o.type ??? null and o.name ??? null and o.label ??? null) %}
 
-                                        {% if input.type == 'select' and input.options %}
-                                            {{ forms.selectField({
-                                                disabled: true,
-                                                name   : input.name,
-                                                label  : input.label | t('app'),
-                                                value  : attribute(value, field) ?? input.default ?? input.value ?? input.options | keys | first,
-                                                options: input.options,
-                                                class: 'spf__input',
-                                                instructions: input.instructions | t('app'),
-                                                fieldClass: input.fieldClass,
-                                            }) }}
-                                        {% endif %}
+            {## prep all possible values at once before individual field rendering ##}
+            {% set input = {
+                type         : input.type,
+                name         : input.name,
+                label        : input.label | t('app'),
+                value        : input.value        ?? null,
+                min          : input.min          ?? null,
+                max          : input.max          ?? null,
+                step         : input.step         ?? null,
+                size         : input.size         ?? null,
+                options      : input.options      ?? [],
+                maxlength    : input.maxlength    ?? 255,
+                placeholder  : input.placeholder  ?? null | t('app'),
+                instructions : input.instructions ?? null | t('app'),
+                fieldClass   : ( input.fieldClass ?? null ) ? 'field ' ~ input.fieldClass : 'field width-50',
+            } %}
 
-                                        {% if input.type == 'radio' and input.options %}
-                                            {{ forms.radioGroupField({
-                                                disabled: true,
-                                                name   : input.name,
-                                                label  : input.label | t('app'),
-                                                value  : attribute(value, field) ?? input.default ?? input.value ?? input.options | keys | first,
-                                                options: input.options,
-                                                class: 'spf__input',
-                                                instructions: input.instructions | t('app'),
-                                                fieldClass: input.fieldClass,
-                                            }) }}
-                                        {% endif %}
-                                    {% endif %}
-                                {% endfor %}
-                            </div>
-                        </div>
-                    {% endif %}
-                {% endfor %}
-            </div>
-        {% endif %}
-	</div>
-{% endif %}
+
+            {## Complex <select> options?
+            {-------------------------------------------------------------------------##}
+            {% if ( (  input.options | first ) is iterable ) %}
+                {% set input = input | merge({
+                    options: input.options|map(o => {
+                        label: o.label,
+                        value: o.value,
+                        data : o | withoutKey(['value', 'label'])
+                    })})
+                %}
+            {% endif %}
+            {##-------------------------------------------------------------------------}
+                <select> fields can have additional settings associated with each option,
+                i.e. (besides 'value' and 'label'). These get stored on the <option>
+                element as data attributes. The difference in JSON config is:
+
+                Simple:
+            {---------------------------------------------------------------------------}
+                "options" : {
+                    "autolink": "Auto Link",
+                    "modal"   : "Lightbox",
+                    "download": "Download Image",
+                    "none"    : "No Click Action"
+                }
+
+                Complex:
+            {---------------------------------------------------------------------------}
+                "options" : [{
+                    "value": "left",
+                    "label": "Left Aligned",
+                    "microlayout" : "zone1Top"
+                },{
+                    "value": "middle",
+                    "label": "Middle Aligned",
+                    "microlayout" : "zone1Top__center"
+                }]
+            {-------------------------------------------------------------------------##}
+
+
+            {## Render virtual fields based on type
+            {---------------------------------------------------------------------------}
+                Default any unknown types to text inputs.
+            {-------------------------------------------------------------------------##}
+            {% switch input.type %}
+            {% case "lightswitch" %}
+                {{ forms.lightswitchField({
+                    name        : input.name,
+                    label       : input.label,
+                    fieldClass  : input.fieldClass,
+                    instructions: input.instructions,
+                }) }}
+            {% case "select" %}
+                {{ forms.selectField({
+                    name        : input.name,
+                    label       : input.label,
+                    value       : input.value,
+                    options     : input.options,
+                    fieldClass  : input.fieldClass,
+                    instructions: input.instructions,
+                }) }}
+            {% case "radiogroup" %}
+                {{ forms.radioGroupField({
+                    name        : input.name,
+                    label       : input.label,
+                    value       : input.value,
+                    options     : input.options,
+                    fieldClass  : input.fieldClass,
+                    instructions: input.instructions,
+                }) }}
+            {% case "number" %}
+                {{ forms.textField({
+                    type        : 'number',
+                    name        : input.name,
+                    label       : input.label,
+                    value       : input.value,
+                    size        : input.size ?? 8,
+                    min         : input.min,
+                    max         : input.max,
+                    step        : input.step,
+                    fieldClass  : input.fieldClass,
+                    placeholder : input.placeholder,
+                    instructions: input.instructions,
+                }) }}
+            {% default %}
+                {{ forms.textField({
+                    name        : input.name,
+                    label       : input.label,
+                    size        : input.size,
+                    value       : input.value,
+                    maxlength   : input.maxlength,
+                    fieldClass  : input.fieldClass,
+                    placeholder : input.placeholder,
+                    instructions: input.instructions,
+                }) }}
+            {% endswitch %}
+        {% endfor %}
+    </template>
+{% endmacro %}
