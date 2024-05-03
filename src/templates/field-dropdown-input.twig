@@ -66,7 +66,7 @@
 
     {## Virtual Inputs ##}
     {% for opt in config | filter(o => o.inputs ?? null) %}
-        {{ _self.virtualinputs( field, opt ) }}
+        {{ _self.virtualinputs( field, opt, value.json ) }}
     {% endfor %}
 
     {## JSON encoded values of Virtual Inputs associated with the selected option ##}
@@ -79,8 +79,10 @@
 
 
 {## Virtual Input Modal Contents ##}
-{% macro virtualinputs( field, opt ) %}
+{% macro virtualinputs( field, opt, values ) %}
     <template data-modal='{{ "#{field.handle}__#{opt.value}" | lower }}__settings'>
+
+        {% set values = values | json_decode %}
 
         {## intro text ##}
         {% if opt.tooltip.modal ?? null %}<p class='intro'>{{ opt.tooltip.modal | striptags }}</p>{% endif %}
@@ -100,15 +102,15 @@
                 size         : input.size         ?? null,
                 options      : input.options      ?? [],
                 maxlength    : input.maxlength    ?? 255,
+                fieldClass   : input.fieldClass   ?? 'width-50',
                 placeholder  : input.placeholder  ?? null | t('app'),
                 instructions : input.instructions ?? null | t('app'),
-                fieldClass   : ( input.fieldClass ?? null ) ? 'field ' ~ input.fieldClass : 'field width-50',
             } %}
 
 
             {## Complex <select> options?
             {-------------------------------------------------------------------------##}
-            {% if ( (  input.options | first ) is iterable ) %}
+            {% if ( ( input.options | first ) is iterable ) %}
                 {% set input = input | merge({
                     options: input.options|map(o => {
                         label: o.label,
@@ -187,6 +189,38 @@
                     step        : input.step,
                     fieldClass  : input.fieldClass,
                     placeholder : input.placeholder,
+                    instructions: input.instructions,
+                }) }}
+            {% case "date" %}
+                {{ forms.dateField({
+                    name        : input.name,
+                    label       : input.label,
+                    value       : input.value,
+                    fieldClass  : input.fieldClass,
+                    instructions: input.instructions,
+                }) }}
+            {% case "time" %}
+                {{ forms.timeField({
+                    name        : input.name,
+                    label       : input.label,
+                    value       : input.value,
+                    fieldClass  : input.fieldClass,
+                    instructions: input.instructions,
+                }) }}
+            {% case "money" %}
+                {{ forms.moneyField({
+                    name        : input.name,
+                    label       : input.label,
+                    value       : input.value,
+                    fieldClass  : input.fieldClass,
+                    instructions: input.instructions,
+                }) }}
+            {% case "icon" %}
+                {{ forms.iconPickerField({
+                    name        : input.name,
+                    label       : input.label,
+                    value       : values[input.name] ??? input.value,
+                    fieldClass  : input.fieldClass,
                     instructions: input.instructions,
                 }) }}
             {% default %}

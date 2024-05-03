@@ -103,6 +103,11 @@ form.modal.selectplus .body ul {
     margin-left: 1rem;
 }
 
+form.modal.selectplus .body .field.width-25 {
+    max-width: calc(25% - 27px);
+    min-width: calc(25% - 27px);
+}
+
 form.modal.selectplus .body .field.width-50 {
     max-width: calc(50% - 18px);
     min-width: calc(50% - 18px);

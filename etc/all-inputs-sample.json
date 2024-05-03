@@ -72,5 +72,35 @@
             "value"         : "",
             "instructions"  : "Notes about this field for the content editor"
         }
+       ,{
+            "type" : "icon",
+            "name" : "icon",
+            "label": "Icon",
+            "value": "",
+            "instructions": "Icon ipsum dolor sit amet."
+        }
+       ,{
+            "type" : "time",
+            "name" : "time",
+            "label": "Time",
+            "value": "",
+            "fieldClass": "width-25",
+            "instructions": "Ipsum chrono"
+        }
+       ,{
+            "type" : "date",
+            "name" : "date",
+            "label": "Date",
+            "value": "",
+            "fieldClass": "width-25",
+            "instructions": "Lorem datus"
+        }
+       ,{
+            "type" : "money",
+            "name" : "money",
+            "label": "Money",
+            "value": "",
+            "instructions": "Money ipsum dolor sit amet."
+        }
     ]
 }]
