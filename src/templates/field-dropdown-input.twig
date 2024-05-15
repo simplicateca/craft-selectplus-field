@@ -1,34 +1,49 @@
 {## Don't bother generating the field if we can't load the config ##}
-{% if config ??? null %}
-
-{## Native Craft macro library for creating <form> input elements ##}
-{% import "_includes/forms" as forms %}
+{% if options ??? null %}
 
 <div
     class="selectplus"
     data-field="{{ field.handle }}"
 >
-    {## Selectize Dropdown ##}
     <div class="control">
+
+        {## Use the native Craft library to create form elements ##}
+        {% import "_includes/forms" as forms %}
+        {% set uuid = "selectplus#{random()}" %}
         {{ forms.selectizeField({
+            id     : uuid,
             name   : field.handle ~ "[value]",
             options: options,
-            errors : error ? ["Make a new selection. Previous option unavailable."] : false,
+            errors : deprecated ? ["Option no longer unavailable."|t] : false,
             class  : 'selectize',
-            value  : value.value ??? null,
+            value  : value.value,
             selectizeOptions: {
                 highlight: false,
             }
         }) }}
 
+        {% js %}
+            Craft.SelectPlusField.Fields
+                .waitFor('select#{{"#{namespace|id}-#{uuid}"}}.selectized')
+                .then( ($select) => {
+                    Craft.SelectPlusField.Fields.setupField( $select )
+                });
+        {% endjs %}
+
         {## Gear Buttons (to load modal) ##}
         <div class="gears">
-            {% for opt in config %}
-                {% if opt.inputs ?? null %}
+            {% set fieldname  = field.name ?? null %}
+            {% set fieldname  = fieldname != '__blank__' ? "#{fieldname}: " : '' %}
+
+            {% for opt in options %}
+                {% if opt.virtuals ?? null %}
+                    {% set optlabel   = opt.label ?? '' %}
+                    {% set modaltitle = "#{fieldname}#{optlabel}" | default("Settings"|t) %}
+                    {% set modaltitle = opt.tooltips.virtuals | default( modaltitle ) %}
                     <button
-                        data-modal='{{ "#{field.handle}__#{opt.value}" | lower }}__settings'
-                        data-value="{{opt.value}}"
-                        data-title="{{opt.tooltip.title ?? opt.label ~ ' Settings'}}"
+                        data-modal='{{ "#{field.handle}__#{opt.value}" | snake | lower }}__virtuals'
+                        data-value="{{opt.value|e('html_attr')}}"
+                        data-title="{{modaltitle|e('html_attr')}}"
                         class="btn btn-gear"
                         role="button"
                         type="button"></button>
@@ -38,34 +53,44 @@
     </div>
 
     <div class="tooltips">
-        {% for opt in config %}
-            {% set tooltip = opt.tooltip.inline ?? null %}
-            {% set title   = opt.tooltip.title  ?? "Documentation" %}
-            {% set html    = opt.tooltip.html   ?? null %}
-            {% set url     = opt.tooltip.url    ?? null %}
-            {% set more    = opt.tooltip.more   ?? 'More&thinsp;→'|t %}
+        {% for opt in options %}
+            {% set inline   = opt.tooltips.inline   ?? null %}
+            {% set template = opt.tooltips.template ?? null %}
+            {% set moreurl  = opt.tooltips.url      ?? null %}
+            {% set trigger  = opt.tooltips.trigger  ?? 'Need Help?'|t %}
 
-            {% if tooltip %}
-                <div
-                    data-value="{{opt.value}}"
-                    data-title="{{title|e('html_attr')}}"
-                    data-html="{{html|e('html_attr')}}"
-                    data-url="{{url|e('html_attr')}}"
-                    data-more="{{more|e('html_attr')}}"
-                    class="tip"
-                >
-                    {{ tooltip | raw | widont }}
+            <div data-value="{{opt.value|e('html_attr')}}" class="tip">
+                {% if inline %}
+                    <span>{{ raw( inline | widont ) }}</span>
+                {% endif %}
 
-                    {% if html %}
-                        <a href='{{url??'#'}}' class="btn-help">{{'More&thinsp;→'|t}}→</a>
-                    {% endif %}
-                </div>
-            {% endif %}
+                {% if template %}
+                    {% set modaltitle = opt.tooltips.help ??? "#{opt.label ?? ''} #{'Help'|t}" %}
+                    <button
+                        data-modal='{{ "#{field.handle}__#{opt.value}" | snake | lower }}__help'
+                        data-value="{{opt.value}}"
+                        data-title="{{modaltitle}}"
+                        data-template="{{template}}"
+                        data-moreurl="{{moreurl}}"
+                        class="btn btn-help"
+                        role="button"
+                        type="button">{{trigger}}</button>
+                {% endif %}
+
+                {% if moreurl and not template %}
+                    {{ tag( 'a', {
+                        href  : moreurl,
+                        text  : trigger,
+                        class : "btn-help",
+                        target: "_blank",
+                    } )}}
+                {% endif %}
+            </div>
         {% endfor %}
     </div>
 
     {## Virtual Inputs ##}
-    {% for opt in config | filter(o => o.inputs ?? null) %}
+    {% for opt in options %}
         {{ _self.virtualinputs( field, opt, value.json ) }}
     {% endfor %}
 
@@ -75,26 +100,33 @@
 </div>
 
 {## Field Config Error ##}
-{% else %}<p class="error">The JSON config for this field is missing or corrupt. Talk to your CMS admin.</p>{% endif %}
+{% else %}
+    <p class="error">
+        The JSON config for this field is missing or corrupt. Talk to your CMS admin.
+    </p>
+{% endif %}
 
 
 {## Virtual Input Modal Contents ##}
 {% macro virtualinputs( field, opt, values ) %}
-    <template data-modal='{{ "#{field.handle}__#{opt.value}" | lower }}__settings'>
+    <template data-modal='{{ "#{field.handle}__#{opt.value}" | snake | lower }}__virtuals'>
 
         {% set values = values | json_decode %}
 
         {## intro text ##}
-        {% if opt.tooltip.modal ?? null %}<p class='intro'>{{ opt.tooltip.modal | striptags }}</p>{% endif %}
+        {% if opt.tooltips.modal ?? null %}<p class='intro'>{{ opt.tooltips.modal | striptags }}</p>{% endif %}
 
         {## virtual inputs ##}
-        {% for input in opt.inputs | filter(o => o.type ??? null and o.name ??? null and o.label ??? null) %}
+        {% for input in opt.virtuals ??? [] %}
+
+            {## Only field? ##}
+            {% set fieldClass = loop.first and loop.last ? 'width-100' : 'width-50' %}
 
             {## prep all possible values at once before individual field rendering ##}
             {% set input = {
-                type         : input.type,
-                name         : input.name,
-                label        : input.label | t('app'),
+                type         : input.type         ?? null,
+                name         : input.name         ?? null,
+                label        : input.label        ?? null | t('app'),
                 value        : input.value        ?? null,
                 min          : input.min          ?? null,
                 max          : input.max          ?? null,
@@ -102,7 +134,7 @@
                 size         : input.size         ?? null,
                 options      : input.options      ?? [],
                 maxlength    : input.maxlength    ?? 255,
-                fieldClass   : input.fieldClass   ?? 'width-50',
+                fieldClass   : input.fieldClass   ?? fieldClass,
                 placeholder  : input.placeholder  ?? null | t('app'),
                 instructions : input.instructions ?? null | t('app'),
             } %}
@@ -112,7 +144,7 @@
             {-------------------------------------------------------------------------##}
             {% if ( ( input.options | first ) is iterable ) %}
                 {% set input = input | merge({
-                    options: input.options|map(o => {
+                    options: input.options|map(o => o.optgroup is defined ? o : {
                         label: o.label,
                         value: o.value,
                         data : o | withoutKey(['value', 'label'])
@@ -223,6 +255,15 @@
                     fieldClass  : input.fieldClass,
                     instructions: input.instructions,
                 }) }}
+            {% case "color" %}
+                {% include "selectplus/forms/color" with {
+                    name        : input.name,
+                    label       : input.label,
+                    fieldClass  : input.fieldClass,
+                    instructions: input.instructions,
+                } only %}
+            {% case "hr" %}
+                <div class="field hr"></div>
             {% default %}
                 {{ forms.textField({
                     name        : input.name,

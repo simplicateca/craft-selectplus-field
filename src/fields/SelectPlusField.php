@@ -16,13 +16,21 @@ use simplicateca\selectplus\fields\SelectPlusData;
 
 class SelectPlusField extends Field implements PreviewableFieldInterface, SortableFieldInterface
 {
-	public string $configFile = '';
+    public string $configFile = '';
 
     public ?string $columnType = null;
 
     public static function displayName(): string {
 		return Craft::t('selectplus', 'Dropdown (SelectPlus)');
 	}
+
+
+    /**
+     * @inheritdoc
+     */
+    public static function icon(): string {
+        return 'list-check';
+    }
 
 
     protected function optionsSettingLabel(): string {
@@ -38,14 +46,13 @@ class SelectPlusField extends Field implements PreviewableFieldInterface, Sortab
 	public function normalizeValue( $value, ElementInterface $element = null ): mixed {
 
         if( $value instanceof SelectPlusData ) {
+            $value->config = $this->configFile;
             return $value;
         }
 
         $data = [
-            'value'   => '',
-            'json'    => '{}',
-            'element' => $element,
-            'config'  => $this->configFile,
+            'value' => '',
+            'json'  => '{}',
         ];
 
         if( !empty($value) ) {
@@ -58,10 +65,9 @@ class SelectPlusField extends Field implements PreviewableFieldInterface, Sortab
                 }
 
                 if( \is_array($jsonValue) ) {
-
                     $value = ( !array_diff_key($data, $jsonValue) && !array_diff_key($jsonValue, $data) )
                         ? $jsonValue
-                        : [ 'value' => $value, 'json'  => '{}' ];
+                        : array_merge( $data, [ 'value' => $value ] );
                 }
             }
 
@@ -69,6 +75,9 @@ class SelectPlusField extends Field implements PreviewableFieldInterface, Sortab
                 $data = array_merge( $data, array_filter($value) );
             }
         }
+
+        $data['config']  = $this->configFile;
+        $data['element'] = $element;
 
         return new SelectPlusData( $data );
 	}
@@ -94,36 +103,25 @@ class SelectPlusField extends Field implements PreviewableFieldInterface, Sortab
 	}
 
 
-	public function getInputHtml( $value, ElementInterface $element = null ): string {
+	public function getInputHtml( mixed $value, ElementInterface $element = null ): string {
 
-        $config = ConfigHelper::load( $this->configFile, [
-            'value'   => $value->value,
-            'element' => $element,
-        ] );
+        $options = $value->config == $this->configFile
+            ? $value->options
+            : ConfigHelper::load( $this->configFile, $element );
 
-        $options = array_combine(
-            array_column( $config, 'value' ),
-            array_column( $config, 'label' )
-        );
-
-		// $id = Craft::$app->getView()->formatInputId( $this->handle );
-        // $namespace = Craft::$app->getView()->namespaceInputId($id);
-
-		// what to do when we load an option that no longer exists in the field config?
-		// TODO: try to find & set a new default value ??
-        $error = ( $value->value && !empty($value->value) && !in_array( $value->value, array_keys( $options ) ) );
-        if( $error ) {
-            array_unshift( $options, [ 'value' => $value->value, 'label' => '[UNAVAILABLE]', 'disabled' => true ] );
+		// when we load an option that no longer exists in the field configuration
+        $deprecated = ( $value->value && !empty($value->value) && !in_array( $value->value, array_column( $options, 'value' ) ) );
+        if( $deprecated ) {
+            array_unshift( $options, [ 'value' => $value->value, 'label' => '[UNAVAILABLE: ' . $value->value . ']', 'disabled' => true ] );
 		}
 
         return Craft::$app->getView()->renderTemplate('selectplus/field-dropdown-input', [
-			'field' 	=> $this,
-			'element' 	=> ConfigHelper::minimizeElement( $element ),
-            'options' 	=> $options,
-			'config' 	=> $config,
-			'error' 	=> $error,
-			'value' 	=> $value,
-            'configfile' => $this->configFile
+            'field' 	 => $this,
+            'value' 	 => $value,
+            'config' 	 => $this->configFile,
+            'options' 	 => $options,
+			'deprecated' => $deprecated,
+            'namespace'  => Craft::$app->getView()->getNamespace()
 		]);
 	}
 }

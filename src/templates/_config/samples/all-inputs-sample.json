@@ -1,14 +1,15 @@
 [{
     "label": "All Input Fields",
-    "value": "allFields",
-    "tooltip": {
+    "value": "allfields",
+    "tooltips": {
         "inline": "This field has all the input types available in the Settings Modal"
     },
-    "inputs": [
+    "settings": [],
+    "virtuals": [
         {
             "type"          : "text",
             "name"          : "textFieldName",
-            "value"         : "Default",
+            "value"         : "Default Value",
             "label"         : "Enter Plain Text",
             "size"          : null,
             "maxlength"     : 255,
@@ -55,8 +56,7 @@
             "max"           : null,
             "step"          : null,
             "placeholder"   : "",
-            "instructions"  : "Notes about this field for the content editor",
-
+            "instructions"  : "Notes about this field for the content editor"
         }
        ,{
             "type"          : "lightswitch",

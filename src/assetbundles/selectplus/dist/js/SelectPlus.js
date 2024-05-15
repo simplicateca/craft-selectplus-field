@@ -18,45 +18,44 @@ Craft.SelectPlusField.DocumentationModal = Garnish.Modal.extend({
         });
 
         const content = Object.assign({}, {
-            title: 'Documentation',
-            more : 'More',
-            url  : null,
-            html : null,
+            title  : 'Documentation',
+            moreurl: null,
+            html   : null,
         }, modalContent )
 
-        this.modal.$form = $('<form class="modal fitted selectplus" method="post" accept-charset="UTF-8"/>').appendTo(Garnish.$bod);
+        this.$form = $('<form class="modal fitted selectplus" method="post" accept-charset="UTF-8"/>').appendTo(Garnish.$bod);
 
-        $('<div class="header"><h1>' + content.title + '</h1></header>').appendTo(this.modal.$form);
+        $('<div class="header"><h1>' + content.title + '</h1></header>').appendTo(this.$form);
 
         if( content.html ) {
-            this.$body = $('<div class="body">' + content.html + '</div>').appendTo(this.modal.$form);
+            this.$body = $('<div class="body">' + content.html + '</div>').appendTo(this.$form);
         }
 
-        const $footer = $('<div class="footer"/>').appendTo(this.modal.$form);
+        const $footer = $('<div class="footer"/>').appendTo(this.$form);
 
         const $mainBtnGroup = $('<div class="buttons right"/>').appendTo($footer);
 
-        if( content.url ) {
-            this.$moreBtn = $('<a href="' + content.url + '" target="_blank" class="btn submit">' + Craft.t('selectplus', content.more) + '</a>').appendTo($mainBtnGroup);
+        if( content.moreurl ) {
+            this.$moreBtn = $('<a href="' + content.moreurl + '" target="_blank" class="btn submit">' + Craft.t('selectplus', content.more) + '</a>').appendTo($mainBtnGroup);
             this.addListener(this.$moreBtn, 'click', 'onFadeOut');
         }
 
         this.$cancelBtn   = $('<input type="button" class="btn" value="' + Craft.t('app', 'Close') + '"/>').appendTo($mainBtnGroup);
         this.addListener(this.$cancelBtn, 'click', 'onFadeOut');
 
-        Craft.initUiElements(this.modal.$form);
+        Craft.initUiElements(this.$form);
 
-        this.base(this.modal.$form);
+        this.base(this.$form);
     },
 
     onFadeOut() {
-        this.modal.$form.remove();
+        this.$form.remove();
         this.$shade.remove();
     }
 });
 
 
-/**
+/**virtualDefaults
  * SelectPlusField - Settings Modal
  */
 Craft.SelectPlusField.InputModal = Garnish.Modal.extend({
@@ -117,13 +116,26 @@ Craft.SelectPlusField.InputModal = Garnish.Modal.extend({
             // icon picker fields
             // -> craftcms/vendor/craftcms/cms/src/templates/_includes/forms/iconPicker.twig
             if( attribute.startsWith('iconpicker') ) {
-                new Craft.IconPicker( '#fields-' + attribute )
+                const iconfield = $virtuals[i].id.replace(/-field$/, '');
+                new Craft.IconPicker( '#' + iconfield )
+            }
+
+            // color picker fields
+            // -> craftcms/vendor/simplicateca/selectplus/src/templates/forms/color.twig
+            if( attribute.startsWith('color') ) {
+                const colorfield = $virtuals[i].id.replace(/-field$/, '-container');
+                new Craft.ColorInput('#' + colorfield, {
+                    presets: [],
+                });
+                // console.log('ColorInput: #' + colorfield  )
             }
 
             // money fields
             // -> craftcms/vendor/craftcms/cms/src/templates/_includes/forms/money.twig
             if( attribute.startsWith('money') ) {
                 new Craft.Money( 'fields-' + attribute );
+
+                // console.log('Money: #fields-' + attribute)
             }
 
             // time fields
@@ -131,7 +143,9 @@ Craft.SelectPlusField.InputModal = Garnish.Modal.extend({
             if( attribute.startsWith('time') ) {
                 $('#fields-' + attribute + '-time').timepicker($.extend({
 
-                    }, Craft.timepickerOptions ));
+                }, Craft.timepickerOptions ));
+
+                // console.log('timepicker: #fields-' + attribute + '-time')
             }
 
             // datepick fields
@@ -139,7 +153,9 @@ Craft.SelectPlusField.InputModal = Garnish.Modal.extend({
             if( attribute.startsWith('date') ) {
                 $('#fields-' + attribute + '-date').datepicker($.extend({
                     defaultDate: new Date()
-                }, Craft.datepickerOptions));
+                }, Craft.datepickerOptions ));
+
+                // console.log('datepicker: #fields-' + attribute + '-date')
             }
         }
 
@@ -147,7 +163,6 @@ Craft.SelectPlusField.InputModal = Garnish.Modal.extend({
 
 
     setStartingValues( values ) {
-        // this.starting = values
         for (const key in values) {
             const input = this.$form[0].querySelector(`[name$="[${key}]"]`);
             if (input) {
@@ -163,6 +178,7 @@ Craft.SelectPlusField.InputModal = Garnish.Modal.extend({
         }
     },
 
+    
     onFadeOut() {
         Craft.SelectPlusField.Fields.saveVirtuals( this.$form, this.field )
         this.$form.remove()
@@ -177,86 +193,123 @@ Craft.SelectPlusField.InputModal = Garnish.Modal.extend({
  */
 Craft.SelectPlusField.Fields = {
     init() {
-        this.monitorSelects()
+        //this.monitorSelects()
         this.monitorButtons()
     },
 
-    monitorSelects() {
-        // setup selectize fields that existed on the page when it loaded
-        // i.e. editing an entry type directly that uses a selectplus field
-        const selectizeFields = document.querySelectorAll('.selectplus select.selectized')
-        selectizeFields.forEach((field) => {
-            Craft.SelectPlusField.Fields.setupSelect( field )
-        });
+    // waits for selectize to do its thing
+    waitFor( selector ) {
+        return new Promise(resolve => {
+            if (document.querySelector(selector)) {
+                return resolve(document.querySelector(selector));
+            }
 
-
-        // listener for new selectize fields added to the page dynamically, i.e. via
-        // matrix fields or elements loaded via slideout / modal
-        new MutationObserver(function(mutations) {
-            mutations.forEach(function(mutation) {
-                if( mutation.addedNodes.length > 0 ) {
-                    mutation.addedNodes.forEach(function(field) {
-                        if( field.classList
-                         && field.classList.contains('selectized')
-                         && field.tagName === 'SELECT'
-                         && field.parentNode.classList.contains('selectize')
-                        ) {
-                            Craft.SelectPlusField.Fields.setupSelect( field )
-                        }
-                    })
+            const observer = new MutationObserver(mutations => {
+                if (document.querySelector(selector)) {
+                    observer.disconnect();
+                    resolve(document.querySelector(selector));
                 }
-            })
-        }).observe(
-            document.body, { childList: true, subtree: true }
-        )
+            });
+
+            // If you get "parameter 1 is not of type 'Node'" error, see https://stackoverflow.com/a/77855838/492336
+            observer.observe(document.body, {
+                childList: true,
+                subtree: true
+            });
+        });
     },
 
 
     // setup a selectplus field the first time we see one
-    setupSelect( field ) {
-        const selectplus = field ? field.closest('.selectplus') : null
+    setupField( $field ) {
+        const selectplus = $field ? $field.closest('.selectplus') : null
         if( selectplus ) {
-
             // toggle any tooltips + modal buttons
-            this.toggleButtons( selectplus, field.value )
+            this.toggleButtons( selectplus, $field.selectize.getValue() )
 
             // watch for changes
             new MutationObserver(function(mutations) {
                 if( mutations[0].target ) Craft.SelectPlusField.Fields.changeSelect( mutations[0].target )
-            }).observe( field, { childList: true } )
-
-            // setup our onload defaults
-            const json = selectplus.querySelector('input[type="hidden"][name$="[json]"]')
-            const gear = selectplus.querySelector('.gears .btn-gear[data-value="'+field.value+'"]')
-            if( json && gear ) {
-                const template = document.querySelector( 'template[data-modal="'+gear.dataset.modal+'"]' )
-                if( template ) {
-                    const values = Object.assign({},
-                        this.virtualDefaults( template.content.cloneNode(true) ),
-                        JSON.parse( json.value )
-                    )
-                    json.value = JSON.stringify( values )
-                }
-            }
+            }).observe( $field, { childList: true } )
 
             // this fixes a weird UI glitch where .. the first selectize in a slide out panel would start open.
             // as best as i can tell, this was only happening if the `Title` field is disabled for the entry
             // type being edited. I *see* the issue on a fresh install of Craft 5, but it was self correcting
             // by the time the panel fully openned. This is my attempt to replicate the autocorrect, but it's
             // also not the end of the world if it doesn't work. It doesn't break anything, it's just annoying
-            const $select = selectplus.querySelector( 'select.selectized' );
-            if( $select ) {
-                setTimeout(() => { $select.selectize.blur(); }, 25 );
+            // const $select = selectplus.querySelector( 'select.selectized' );
+            if( $field ) {
+                setTimeout(() => { $field.selectize.blur(); }, 25 );
             }
         }
     },
 
 
+    jsonFromModal( field ) {
+        const selectplus = field ? field.closest('.selectplus') : null
+        const json = selectplus.querySelector('input[type="hidden"][name$="[json]"]')
+        const gear = selectplus.querySelector('.gears .btn-gear[data-value="'+field.value+'"]')
+        if( json && gear ) {
+            const template = document.querySelector( 'template[data-modal="'+gear.dataset.modal+'"]' )
+            if( template ) {
+                const modal = template.content.cloneNode(true);
+
+                $form = $('<form class="modal fitted selectplus fields" accept-charset="UTF-8"/>');
+                $(modal).appendTo($form);
+                const $inputs = $form[0] ? $form[0].querySelectorAll('input, select, textarea') : null
+
+                // Extract field names
+                const fieldNames = Array.from($inputs).map(element => {
+                    return element.getAttribute('name');
+                }).map(str => {
+                    const matches = str.match(/\[([^[]+)\]$/);
+                    return matches ? matches[1] : null;
+                }).filter(fieldName => fieldName !== null);
+
+
+                const oldjson = JSON.parse( json.value );
+                const current = {};
+                Object.keys(oldjson).forEach(key => {
+                    if( fieldNames.includes(key) ) {
+                        current[key] = oldjson[key];
+                    }
+                });
+
+
+                for( const key in current ) {
+                    const input = $form[0].querySelector(`[name$="[${key}]"]`);
+                    if( input ) {
+                        if( input.tagName === 'SELECT' ) {
+                            const optionExists = Array.from(input.options).some(option => option.value === current[key]);
+                            if (optionExists) {
+                                input.value = current[key];
+                            }
+                        } else {
+                            input.value = current[key];
+                        }
+                    }
+                }
+
+                const values = Object.assign({},
+                    this.virtualDefaults( $form[0] ),
+                    current,
+                )
+
+                json.value = JSON.stringify( values )
+            }
+        }
+    },
+
+
+
     // when the value of the selectize field changes
     changeSelect( field ) {
-        const selectplus = field ? field.closest('.selectplus') : null
-        if( selectplus ) {
-            this.toggleButtons( field.closest(".selectplus"), field.value  )
+        if( field.value ) {
+            this.jsonFromModal(field)
+            const selectplus = field ? field.closest('.selectplus') : null
+            if( selectplus ) {
+                this.toggleButtons( field.closest(".selectplus"), field.value  )
+            }
         }
     },
 
@@ -298,22 +351,23 @@ Craft.SelectPlusField.Fields = {
 
 
     buttonTooltip( link ) {
+        const modal    = link.dataset.modal ?? null
+        const title    = link.dataset.title ?? 'Documentation'
+        const moreurl  = link.dataset.moreurl ?? null
+        const template = link.dataset.template ?? null
+        // const template = document.querySelector( 'template[data-modal="'+modal+'"]' )
 
-        const parent  = link.closest('div.note')
-
-        const modalSettings = {
-            title: parent.dataset.title ?? null,
-            more:  parent.dataset.more  ?? null,
-            url:   parent.dataset.url   ?? null,
-            html:  parent.dataset.html  ?? null,
+        if( template ) {
+            new Craft.SelectPlusField.DocumentationModal({
+                title  : title,
+                moreurl: moreurl,
+                html   : template,
+            })
         }
-
-        new Craft.SelectPlusField.DocumentationModal( modalSettings )
     },
 
 
-    buttonSettings( link )
-    {
+    buttonSettings( link ) {
         const selectplus = link ? link.closest('.selectplus') :  null
         if( selectplus ) {
             const modal    = link.dataset.modal ?? null
@@ -332,6 +386,7 @@ Craft.SelectPlusField.Fields = {
         }
     },
 
+
     virtualDefaults( fields ) {
         $form = $('<form class="modal fitted selectplus fields" accept-charset="UTF-8"/>');
         $(fields).appendTo($form);
@@ -339,14 +394,12 @@ Craft.SelectPlusField.Fields = {
         return this.serialize( $inputs )
     },
 
-    saveVirtuals( $form, $field )
-    {
-        const $inputs = $form[0] ? $form[0].querySelectorAll('input, select, textarea') : null
-        let values = this.serialize( $inputs )
 
+    saveVirtuals( $form, $field ) {
         const $json = $field ? $field.querySelector('input[type="hidden"][name$="[json]"]') : null
         if( $json ) {
-            $json.value = JSON.stringify( values )
+            const $inputs = $form[0] ? $form[0].querySelectorAll('input, select, textarea') : null
+            $json.value = JSON.stringify( this.serialize( $inputs ) )
         }
     },
 

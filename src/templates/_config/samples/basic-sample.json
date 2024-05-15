@@ -2,7 +2,7 @@
     {
         "label": "Option One",
         "value": "one",
-        "tooltip": {
+        "tooltips": {
             "inline": "Lorem ipsum about option one..."
         },
         "settings": {
@@ -14,7 +14,7 @@
     {
         "label": "Option Two",
         "value": "two",
-        "tooltip": {
+        "tooltips": {
             "inline": "Lorem ipsum about option two..."
         },
         "settings": {
@@ -26,7 +26,7 @@
     {
         "label": "Option Three",
         "value": "three",
-        "tooltip": {
+        "tooltips": {
             "inline": "Lorem ipsum about option three..."
         },
         "settings": {

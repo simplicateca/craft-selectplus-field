@@ -116,3 +116,8 @@ form.modal.selectplus .body .field.width-50 {
 form.modal.selectplus .body .field.width-100 {
     max-width: 460px !important;
 }
+
+form.modal.selectplus .body .field.hr {
+    max-width: 100% !important;
+    border-top: 1px solid #e5e5e5;
+}

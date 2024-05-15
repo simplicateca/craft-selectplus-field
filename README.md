@@ -227,7 +227,7 @@ e.g. **field-config.json**
     {
         "label": "Option One",
         "value": "one",
-        "inputs": [
+        "virtuals": [
             {{ block( 'align', '_config/field-inputs.twig' ) }},
             {{ block( 'size',  '_config/field-inputs.twig' ) }},
         ]
@@ -235,7 +235,7 @@ e.g. **field-config.json**
    ,{
         "label": "Option Two",
         "value": "two",
-        "inputs": [
+        "virtuals": [
             {{ block( 'align', '_config/field-inputs.twig' ) }},
             {{ block( 'size',  '_config/field-inputs.twig' ) }},
         ]
@@ -249,9 +249,9 @@ e.g. **field-config.json**
 {% block align %}
     {
         "label": "Alignment",
-        "field": "align",
+        "name" : "align",
         "type" : "select",
-        "value": "left",
+        "value": "text-left",
         "options": [
             "text-left"  : "Left",
             "text-center": "Center",
@@ -263,7 +263,7 @@ e.g. **field-config.json**
 {% block size %}
     {
         "label": "Font Size",
-        "field": "fontSize",
+        "name" : "fontSize",
         "type" : "select",
         "value": "text-base",
         "options": [
@@ -276,6 +276,24 @@ e.g. **field-config.json**
     }
 {% endblock %}
 ```
+
+## Element Variables
+
+```
+    'name'    => $element->type->name    ?? null,
+    'type'    => $element->type->handle  ?? null,
+    'field'   => $element->field->handle ?? null,
+    'element' => $element->elementType   ?? null,
+    'owner'   => [
+        'site'    => $owner->site->handle    ?? null,
+        'type'    => $owner->type->handle    ?? null,
+        'level'   => $owner->level           ?? null,
+        'section' => $owner->section->handle ?? null,
+        'element' => $owner->elementType     ?? null,
+    ],
+```
+
+
 
 ## Button-only mode
 

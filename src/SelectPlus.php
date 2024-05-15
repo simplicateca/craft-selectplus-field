@@ -3,13 +3,14 @@ namespace simplicateca\selectplus;
 
 use Craft;
 use craft\web\View;
+use craft\services\Fields;
+use craft\events\TemplateEvent;
+use craft\events\RegisterComponentTypesEvent;
+use craft\events\RegisterTemplateRootsEvent;
 
 use yii\base\Event;
-use craft\events\TemplateEvent;
-// use craft\events\RegisterTemplateRootsEvent;
-use craft\events\RegisterComponentTypesEvent;
+use yii\base\InvalidConfigException;
 
-use craft\services\Fields;
 use simplicateca\selectplus\fields\SelectPlusField;
 
 class SelectPlus extends \craft\base\Plugin
@@ -18,7 +19,11 @@ class SelectPlus extends \craft\base\Plugin
 
 	public function __construct( $id, $parent = null, array $config = [] )
     {
-		static::setInstance($this);
+        Event::on( View::class, View::EVENT_REGISTER_SITE_TEMPLATE_ROOTS, function (RegisterTemplateRootsEvent $e) {
+            $e->roots['_selectplus'] = $this->getBasePath() . DIRECTORY_SEPARATOR . 'templates/_config';
+        });
+
+        static::setInstance($this);
 		parent::__construct($id, $parent, $config);
 	}
 

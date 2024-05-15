@@ -9,7 +9,7 @@ use Craft;
 
 class ConfigHelper
 {
-    public static function load( string $filename = null, array|null $twigVars = [] ): array {
+    public static function load( string $filename = null, mixed $element = null ): array {
 
         if( !$filename ) { return []; }
 
@@ -20,10 +20,10 @@ class ConfigHelper
 
         // Force the config to render as an array rather than risk it being a single object.
         // Its easy enough to pull the inner array out and move on with life than risk throwing errors.
-        $jsonEncodedOptions = '[' . $view->renderString( ConfigHelper::getConfigInclude( $filename ), [
-            'object' => ConfigHelper::minimizeElement( $twigVars['element'] ?? null ),
-            'value'  => $twigVars['value'] ?? null,
-        ] ) . ']';
+        $jsonEncodedOptions = '[' . $view->renderString(
+            ConfigHelper::getConfigInclude( $filename ),
+            ConfigHelper::minimize( $element )
+        ) . ']';
 
         // Decode the the json and make sure we don't have a nested array situation per the above comment
         $options = json_decode( $jsonEncodedOptions, true );
@@ -61,7 +61,7 @@ class ConfigHelper
 
         $configFiles = \craft\helpers\FileHelper::findFiles(
             Craft::getAlias("@templates"),
-            [ 'only' => ['*.json']
+            [ 'only' => ['*.json', '*.json.twig']
         ]);
 
 		return
@@ -70,7 +70,7 @@ class ConfigHelper
                 $baseDir = Craft::getAlias("@templates") . DIRECTORY_SEPARATOR;
                 return str_replace( $baseDir, '', $path );
             })
-            ->toArray();
+            ->all();
     }
 
     private static function getConfigInclude( string $filename ): string {
@@ -79,7 +79,7 @@ class ConfigHelper
     }
 
 
-    public static function minimizeElement( $element = null ): array {
+    public static function minimize( $element = null ): array {
 
         if( !$element ) { return []; }
 
@@ -93,15 +93,16 @@ class ConfigHelper
         $owner = $element->primaryOwner ?? $element;
 
         return [
-            'id'      => $element->id              ?? null,
-            'type'    => $element->type->handle    ?? null,
-            'section' => $element->section->handle ?? null,
-            'field'   => $element->field->handle   ?? null,
-
-            'owner'  => [
-                'id'     => $owner->id              ?? null,
-                'type'   => $owner->type->handle    ?? null,
-                'section'=> $owner->section->handle ?? null,
+            'name'    => $element->type->name    ?? null,
+            'type'    => $element->type->handle  ?? null,
+            'field'   => $element->field->handle ?? null,
+            'element' => $element->elementType   ?? null,
+            'owner'   => [
+                'site'    => $owner->site->handle    ?? null,
+                'type'    => $owner->type->handle    ?? null,
+                'level'   => $owner->level           ?? null,
+                'section' => $owner->section->handle ?? null,
+                'element' => $owner->elementType     ?? null,
             ],
         ];
     }
