@@ -20,8 +20,16 @@ class SelectPlus extends \craft\base\Plugin
 	public function __construct( $id, $parent = null, array $config = [] )
     {
         Event::on( View::class, View::EVENT_REGISTER_SITE_TEMPLATE_ROOTS, function (RegisterTemplateRootsEvent $e) {
-            $e->roots['_selectplus'] = $this->getBasePath() . DIRECTORY_SEPARATOR . 'templates/_config';
+            $e->roots['_selectplus'] = $this->getBasePath() . DIRECTORY_SEPARATOR . 'templates'  . DIRECTORY_SEPARATOR . 'samples';
         });
+
+        Event::on(
+            View::class,
+            View::EVENT_REGISTER_CP_TEMPLATE_ROOTS,
+            function (RegisterTemplateRootsEvent $e) {
+                $e->roots['_selectplus'] = $this->getBasePath() . DIRECTORY_SEPARATOR . 'templates'  . DIRECTORY_SEPARATOR . 'samples';
+            }
+        );
 
         static::setInstance($this);
 		parent::__construct($id, $parent, $config);
@@ -51,4 +59,5 @@ class SelectPlus extends \craft\base\Plugin
             });
         }
     }
+
 }

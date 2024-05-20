@@ -1,0 +1,58 @@
+{% import "selectplus/selectplus" as selectplus %}
+{% import "_includes/forms" as forms %}
+
+{% set fieldid  = "selectplus#{random()}" %}
+{% set options  = options ?? [] %}
+{% set virtvals = value.json ??? {} | json_decode %}
+
+{## Primary Field Input Controls
+{-------------------------------------------------------------------------------------##}
+<div class="selectplus-field" data-field="{{ field.handle }}">
+    <div class="control">
+
+        {% if options | length == 1 and options[0].button %}
+            {{ forms.hidden({
+                id   : fieldid,
+                name : "#{field.handle}[value]",
+                value: options[0].value,
+            }) | attr({ class: 'selectized' }) }} {## psyche! ##}
+
+            {% js %}
+                Craft.SelectPlusField.setup( document.querySelector('#{{ namespace }}-{{ fieldid }}') );
+            {% endjs %}
+
+            <a class="btn btn-gear only" role="button" tabindex="0"><span>{{options[0].label}}</span></a>
+        {% else %}
+
+            {{ forms.selectizeField({
+                id     : fieldid,
+                name   : "#{field.handle}[value]",
+                options: options ?? [],
+                errors : deprecated ? ["Option no longer unavailable."|t] : false,
+                class  : 'selectize',
+                value  : value.value,
+                selectizeOptions: {
+                    highlight: false
+                }
+            }) }}
+
+            {{ selectplus.registerjs( namespace, fieldid ) }}
+
+            <a class="btn btn-gear" role="button" tabindex="0"></a>
+        {% endif %}
+        <a class="btn btn-help" role="button" tabindex="0"></a>
+        {{ forms.hidden({ name: "#{field.handle}[json]", value: value.json }) }}
+    </div>
+
+    {% if not options | length %}
+        <p class="error">Uh-oh! Looks like something is a misconfigured. Chat with your CMS admin.</p>
+    {% endif %}
+
+    <div class="tooltips"></div>
+</div>
+
+{## <template> content for modals & tooltips
+{-------------------------------------------------------------------------------------##}
+{{ selectplus.virtualmodals( field, options, virtvals ) }}
+{{ selectplus.helpmodals( field, options ) }}
+{{ selectplus.inlinetips( field, options ) }}

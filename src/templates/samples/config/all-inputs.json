@@ -61,7 +61,8 @@
        ,{
             "type"          : "lightswitch",
             "name"          : "switchFieldName",
-            "value"         : "",
+            "value"         : "lit",
+            "default"       : "start 'off' unless any default value exists",
             "label"         : "Lightswitch",
             "instructions"  : "Notes about this field for the content editor"
         }

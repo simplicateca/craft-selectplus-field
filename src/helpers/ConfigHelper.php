@@ -9,6 +9,7 @@ use Craft;
 
 class ConfigHelper
 {
+
     public static function load( string $filename = null, mixed $element = null ): array {
 
         if( !$filename ) { return []; }
@@ -40,6 +41,9 @@ class ConfigHelper
     public static function options( $source = null ): object {
         $options = is_array( $source ) ? $source : ConfigHelper::load( $source );
         return collect( $options )
+            ->filter(function ($item) {
+                return array_key_exists('value', $item);
+            })
             ->mapWithKeys( function ($item, $key) {
 			    return [$item['value'] => $item['label']];
 		    }

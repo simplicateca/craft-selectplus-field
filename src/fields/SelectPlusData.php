@@ -89,11 +89,15 @@ class SelectPlusData extends \craft\base\Model
         // get the default & current values for any virtual inputs
         $settings = $current['settings'] ?? [];
         $virtual_defaults = $this->_defaults( $current['virtuals'] ?? [] );
-        $current_virtuals = json_decode( $this->json, true ) ?? [];
+        $current_json = json_decode( $this->json, true ) ?? [];
 
         // TODO: replace below with a function that finds all possible
         // keys that could be set inside the virtual inputs and use that to
         // prevent key poisoning / collison.
+        //
+        // Since I wrote the above TODO I updated `SelectPlus.js` file and there
+        // is now a javascript approximation of this function that needs to be
+        // run on the server side as well, so just copy that.
         //
         // Otherwise... ALWAYS set a default for every possible setting?
         // That seems excessive. Maybe a safe list of setting key names?
@@ -101,22 +105,20 @@ class SelectPlusData extends \craft\base\Model
         // This really only affects situations where massive changes are made in
         // the config file without reloading / resaving the fields in the CP AND
         // the left over values are causing issues.
-        //
-        // Somewhat related to the field resave / configFile relocation issue.
         // ---------------------------------------------------------------------
         // Discard any virtuals values that don't have existing defaults
         // $merged = array_merge(
         //     $virtual_defaults,
         //     array_intersect_key(
-        //         $current_virtuals,
+        //         $current_json,
         //         $virtual_defaults
         //     )
         // );
 
         $merged = array_merge(
-            $settings,
             $virtual_defaults,
-            $current_virtuals
+            $current_json,
+            $settings, // settings should always come last because it's immutable
         );
 
         $this->_settings = $merged;

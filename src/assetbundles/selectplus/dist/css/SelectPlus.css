@@ -2,70 +2,163 @@
  * selectplusfield - CSS
  */
 
-.selectplus {
+.selectplus-field {
     display: flex;
     flex-direction: column;
 }
 
-.selectplus .control {
+.selectplus-field .control {
     display: flex;
     flex-direction: row;
-    gap: 8px;
+    gap: 5px;
     align-items: flex-start;
 }
 
-.selectplus .btn-help {
-    white-space:nowrap
+.selectplus-modal .btn-help,
+.selectplus-field .btn-help {
+    height: 34px;
+    min-width: 34px;
+    max-width: 34px;
 }
 
-.selectplus .btn-gear {
+.selectplus-modal .btn-help,
+.selectplus-modal .btn-gear,
+.selectplus-field .btn-help,
+.selectplus-field .btn-gear {
     cursor: pointer;
-    display: none;
+    display: block;
     color: #33475b;
     font-size: 15px;
-    margin: 0 0 0 5px;
-    padding: 4px 9px;
+    margin: 0;
+    padding: 4px 8px 4px 9px;
     border: 1px solid #d7dce2;
     border-radius: 3px;
     background-image: linear-gradient(#fff,#fafafa);
 }
 
-.selectplus .btn-gear:hover {
-    background-image: linear-gradient(#eee,#eaeaea);
-    color: #316bea;
+.selectplus-field .btn-gear.only {
+    background-color: #dfe5ec;
+    background-image: linear-gradient(#dfe5ec,#dfe5ec);
+    font-size: 14px;
+    line-height: 20px;
+    margin-bottom: 24px;
 }
 
-.selectplus .btn-gear::after {
+.selectplus-field .btn-gear.only span {
+    color: #3f4d5a;
+    display: inline-flex;
+    padding-right: 20px;
+}
+
+.selectplus-modal .btn-help:hover,
+.selectplus-modal .btn-gear:hover,
+.selectplus-field .btn-help:hover,
+.selectplus-field .btn-gear:hover {
+    background-image: linear-gradient(#eee,#eaeaea);
+    color: #316bea;
+
+    &.disabled {
+        color: #33475b;
+        cursor: not-allowed;
+    }
+}
+
+.selectplus-modal .btn-gear::after,
+.selectplus-field .btn-gear::after {
     content: "settings";
     position: relative;
     top: 1px;
     font-family: Craft,sans-serif;
 }
 
-.selectplus .tooltips {
+.selectplus-modal .btn-help.disabled,
+.selectplus-field .btn-help.disabled {
+    color: #33475b;
+    cursor: not-allowed;
+    background-image: linear-gradient(#aaa,#b7b7b7) !important;
+    opacity: 0.45;
+}
+
+.selectplus-modal .btn-help::after,
+.selectplus-field .btn-help::after {
+    content: '';
+    position: absolute;
+    display: block;
+    height: 15px;
+    width: 15px;
+    background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Pro 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM169.8 165.3c7.9-22.3 29.1-37.3 52.8-37.3h58.3c34.9 0 63.1 28.3 63.1 63.1c0 22.6-12.1 43.5-31.7 54.8L280 264.4c-.2 13-10.9 23.6-24 23.6c-13.3 0-24-10.7-24-24V250.5c0-8.6 4.6-16.5 12.1-20.8l44.3-25.4c4.7-2.7 7.6-7.7 7.6-13.1c0-8.4-6.8-15.1-15.1-15.1H222.6c-3.4 0-6.4 2.1-7.5 5.3l-.4 1.2c-4.4 12.5-18.2 19-30.6 14.6s-19-18.2-14.6-30.6l.4-1.2zM224 352a32 32 0 1 1 64 0 32 32 0 1 1 -64 0z" fill="%2333475b"></path></svg>');
+    top: 8px;
+}
+
+
+.selectplus-modal .btn-gear.disabled,
+.selectplus-field .btn-gear.disabled {
+    background-image: linear-gradient(#aaa,#b7b7b7) !important;
+    opacity: 0.45;
+}
+
+
+.selectplus-field .tooltips {
     margin: -12px 0 12px;
     max-width: 420px;
 }
 
-.selectplus .tip {
+.selectplus-field .tip {
+    display: block;
     padding-left: 16px;
     font-size: 13px;
     margin-top: 0;
     line-height: 1.5em;
     position: relative;
-    display: none;
 }
 
-.selectplus .tip::before {
+.selectplus-field .tip::before {
     content:'↳';
     position: absolute;
     left: 3px;
     top: -2px;
 }
 
-form.modal.selectplus .body {
+
+
+form.modal.selectplus-help,
+form.modal.selectplus-virtuals {
+    max-height: 90vh;
+
+    mark { background: #eee; }
+    ul { margin: 1.5em 0; }
+    ul li { margin-bottom: 0.5em; }
+}
+
+form.modal.selectplus-help .header,
+form.modal.selectplus-virtuals .header {
+    display: flex;
+    align-items: center;
+    padding-top:12px;
+    padding-bottom: 12px;
+}
+
+
+form.modal.selectplus-help .header h1,
+form.modal.selectplus-virtuals .header h1 {
+    padding-right: 64px;
+    flex-grow: 1;
+    line-height: 34px;
+}
+
+form.modal.selectplus-help .body {
     height: 100%;
-    max-height: calc(100% - 114px);
+    max-height: calc(100% - 100px);
+    min-height: 180px;
+    display: block;
+    padding: 32px 24px;
+    overflow: auto;
+    max-width: 680px;
+}
+
+form.modal.selectplus-virtuals .body {
+    height: 100%;
+    max-height: calc(100% - 100px);
     min-height: 180px;
     display: flex;
     flex-wrap: wrap;
@@ -77,12 +170,31 @@ form.modal.selectplus .body {
     max-width: 680px;
 }
 
-form.modal.selectplus .body p.intro {
+form.modal.selectplus-help .body p.intro,
+form.modal.selectplus-virtuals .body p.intro {
     font-size: 15px;
     line-height: 1.5em;
 }
 
-form.modal.selectplus .body .field {
+form.modal.selectplus-help .body .video {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    background: #e4edf6;
+    padding: 40px 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+form.modal.selectplus-help .body .video iframe {
+    margin: 0 auto;
+}
+
+form.modal.selectplus-virtuals .body.fields p.intro {
+    margin-bottom: 0 !important;
+}
+
+form.modal.selectplus-virtuals .body .field {
     margin: 0;
     width: 100%;
     min-width: 260px;
@@ -90,34 +202,72 @@ form.modal.selectplus .body .field {
     flex-grow: 1;
 }
 
-form.modal.selectplus .body .field .select {
+form.modal.selectplus-virtuals .body .field .select {
     width: 100%;
 }
 
-form.modal.selectplus .body .field .select select {
+form.modal.selectplus-virtuals .body .field .select select {
     width: 100%;
 }
 
-form.modal.selectplus .body ul {
+form.modal.selectplus-help .body ul,
+form.modal.selectplus-virtuals .body ul {
     list-style: disc;
     margin-left: 1rem;
 }
 
-form.modal.selectplus .body .field.width-25 {
+form.modal.selectplus-virtuals .body .field.width-25 {
     max-width: calc(25% - 27px);
     min-width: calc(25% - 27px);
 }
 
-form.modal.selectplus .body .field.width-50 {
+form.modal.selectplus-virtuals .body .field.width-30 {
+    max-width: calc(30% - 18px);
+    min-width: calc(30% - 18px);
+}
+
+form.modal.selectplus-virtuals .body .field.width-35 {
+    max-width: calc(35% - 27px);
+    min-width: calc(35% - 27px);
+}
+
+form.modal.selectplus-virtuals .body .field.width-70 {
+    max-width: calc(70% - 18px);
+    min-width: calc(70% - 18px);
+}
+
+form.modal.selectplus-virtuals .body .field.width-75 {
+    max-width: calc(75% - 18px);
+    min-width: calc(75% - 18px);
+}
+
+form.modal.selectplus-virtuals .body .field.width-50 {
     max-width: calc(50% - 18px);
     min-width: calc(50% - 18px);
 }
 
-form.modal.selectplus .body .field.width-100 {
+form.modal.selectplus-virtuals .body .field.width-100 {
     max-width: 460px !important;
 }
 
-form.modal.selectplus .body .field.hr {
+form.modal.selectplus-virtuals .body .field.hr {
     max-width: 100% !important;
     border-top: 1px solid #e5e5e5;
 }
+
+
+form.modal.selectplus-help .footer,
+form.modal.selectplus-virtuals .footer {
+    line-height: var(--lh) !important;
+    align-items: center;
+
+    span {
+        line-height: 2em;
+    }
+}
+
+
+/* form.modal.selectplus-help .footer .btn,
+form.modal.selectplus-virtuals .footer .btn {
+    height: var(--ui-control-height) !important;
+} */
