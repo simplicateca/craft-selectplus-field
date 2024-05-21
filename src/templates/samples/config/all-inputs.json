@@ -2,25 +2,31 @@
     "label": "All Input Fields",
     "value": "allfields",
     "tooltips": {
-        "inline": "This field has all the input types available in the Settings Modal"
+        "inline"    : "All available virtual input field types.",
+        "input"     : "Virtual Input Field Types",
+        "inputabove": "These settings allow for **fine tuning the presentation** of the whatever content you're attaching this field to.",
+        "inputbelow": "*Lorem ipsum dolor sit amet, consectetur adipiscing.*",
+        "help"      : "Understanding the Search Component",
+        "helpurl"   : "https://github.com/simplicateca/craft-selectplus-field/blob/main/src/templates/selectplus.twig#L151",
+        "helptwig"  : "_selectplus/help/sample.twig"
     },
     "settings": [],
     "virtuals": [
         {
             "type"          : "text",
             "name"          : "textFieldName",
-            "value"         : "Default Value",
-            "label"         : "Enter Plain Text",
+            "default"       : "",
+            "label"         : "Plain Text Input",
             "size"          : null,
             "maxlength"     : 255,
-            "placeholder"   : "",
+            "placeholder"   : "Enter some text",
             "instructions"  : "Notes about this field for the content editor",
             "fieldClass"    : "width-100"
         }
        ,{
             "type"          : "select",
             "name"          : "selectFieldName",
-            "value"         : "plain",
+            "default"       : "plain",
             "label"         : "Choose from Select",
             "instructions"  : "Fusce dapibus tellus lorem, in mattis quam dictum id.",
             "options" : {
@@ -31,7 +37,7 @@
        ,{
             "type"          : "select",
             "name"          : "complexFieldName",
-            "value"         : "fancy",
+            "default"       : "fancy",
             "label"         : "Choose from Select",
             "instructions"  : "Fusce dapibus tellus lorem, in mattis quam dictum id.",
             "options" : [{
@@ -49,7 +55,7 @@
        ,{
             "type"          : "number",
             "name"          : "numberFieldName",
-            "value"         : "",
+            "default"       : "",
             "label"         : "Guess a Number",
             "size"          : null,
             "min"           : null,
@@ -70,38 +76,45 @@
             "type"          : "radiogroup",
             "label"         : "Radio Group",
             "name"          : "radioFieldName",
-            "value"         : "",
+            "default"       : "",
             "instructions"  : "Notes about this field for the content editor"
         }
        ,{
-            "type" : "icon",
-            "name" : "icon",
-            "label": "Icon",
-            "value": "",
+            "type"   : "icon",
+            "name"   : "icon",
+            "label"  : "Icon",
+            "default": "bars",
             "instructions": "Icon ipsum dolor sit amet."
         }
        ,{
-            "type" : "time",
-            "name" : "time",
-            "label": "Time",
-            "value": "",
+            "type"   : "time",
+            "name"   : "time",
+            "label"  : "Time",
+            "default": "",
             "fieldClass": "width-25",
             "instructions": "Ipsum chrono"
         }
        ,{
-            "type" : "date",
-            "name" : "date",
-            "label": "Date",
-            "value": "",
+            "type"   : "date",
+            "name"   : "date",
+            "label"  : "Date",
+            "default": "",
             "fieldClass": "width-25",
             "instructions": "Lorem datus"
         }
        ,{
-            "type" : "money",
-            "name" : "money",
-            "label": "Money",
-            "value": "",
+            "type"   : "money",
+            "name"   : "money",
+            "label"  : "Money",
+            "default": "",
             "instructions": "Money ipsum dolor sit amet."
+        }
+        ,{
+            "type"   : "color",
+            "name"   : "color",
+            "label"  : "Colour",
+            "default": "",
+            "instructions": "Colour ipsum dolor sit amet."
         }
     ]
 }]

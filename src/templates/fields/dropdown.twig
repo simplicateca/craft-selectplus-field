@@ -3,14 +3,14 @@
 
 {% set fieldid  = "selectplus#{random()}" %}
 {% set options  = options ?? [] %}
-{% set virtvals = value.json ??? {} | json_decode %}
+{% set virtvals = value.json ?? {} | json_decode %}
 
 {## Primary Field Input Controls
 {-------------------------------------------------------------------------------------##}
 <div class="selectplus-field" data-field="{{ field.handle }}">
     <div class="control">
 
-        {% if options | length == 1 and options[0].button %}
+        {% if options | length == 1 and options[0].type ?? null and options[0].type | lower == 'button' %}
             {{ forms.hidden({
                 id   : fieldid,
                 name : "#{field.handle}[value]",

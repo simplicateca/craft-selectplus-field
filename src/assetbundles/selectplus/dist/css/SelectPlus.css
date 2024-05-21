@@ -176,6 +176,12 @@ form.modal.selectplus-virtuals .body p.intro {
     line-height: 1.5em;
 }
 
+form.modal.selectplus-help .body p.outro,
+form.modal.selectplus-virtuals .body p.outro {
+    font-size: 15px;
+    line-height: 1.5em;
+}
+
 form.modal.selectplus-help .body .video {
     text-align: center;
     margin-bottom: 1.5rem;

@@ -12,6 +12,7 @@
 Craft.SelectPlusField = typeof Craft.SelectPlusField === 'undefined' ? {} : Craft.SelectPlusField;
 Craft.SelectPlusField = {
 
+    icons: {},
     $controllers: {},
 
     setup(selectize) {
@@ -81,7 +82,6 @@ Craft.SelectPlusField = {
 /-------------------------------------------------------------------------------------**/
 Craft.SelectPlusField.Controller = Garnish.Base.extend({
 
-    icons: {},
     $spf: null,
     $button: null,
 
@@ -202,7 +202,7 @@ Craft.SelectPlusField.Controller = Garnish.Base.extend({
             new Craft.SelectPlusField.HelpModal( this, {
                 html    : this.helphtml(),
                 title   : template.dataset.title,
-                moreurl : template.dataset.moreurl,
+                helpurl : template.dataset.helpurl,
                 virtuals: template.dataset.virtuals,
                 triggerElement: this.btnhelp(),
             })
@@ -210,31 +210,52 @@ Craft.SelectPlusField.Controller = Garnish.Base.extend({
     },
 
     refreshicons(domref) {
-        for( const [key, value] of Object.entries(this.icons) ) {
-            const iconfield = domref.querySelector('#' + key )
-            if( iconfield ) { iconfield.innerHTML = value }
+
+        const currvals = this.json()
+        const $iconinputs = domref.querySelectorAll('[data-attribute^="iconpicker"]')
+
+        for( var i = 0; i < $iconinputs.length; i++ ) {
+
+            const fieldname = $iconinputs[i].dataset.name ?? null;
+            const $iconhome = $iconinputs[i].querySelector('.icon-picker') ?? null;
+            if( ! $iconhome ) { break; }
+
+            // have an existing icon value
+            if( currvals[fieldname] ) {
+                $iconhome.querySelector('button.icon-picker--remove-btn').classList.remove('hidden')
+                $iconhome.querySelector('input[type=hidden]').value = currvals[fieldname]
+
+                if( Craft.SelectPlusField.icons[currvals[fieldname]] ?? null ) {
+                    $iconhome.querySelector('.icon-picker--icon').innerHTML = Craft.SelectPlusField.icons[currvals[fieldname]]
+                }
+
+            // no icon selected
+            } else {
+                $iconhome.querySelector('button.icon-picker--remove-btn').classList.add('hidden')
+                $iconhome.querySelector('.icon-picker--icon').innerHTML = ''
+                $iconhome.querySelector('input[type=hidden]').value = ''
+            }
         }
         return domref
     },
 
     setvalues(domref) {
-        const values = this.json()
-        for( const key in values ) {
+        const currvals = this.json()
+        for( const key in currvals ) {
             const input = domref.querySelector(`[name$="[${key}]"]`)
             if( input ) {
-
                 const parent = input.parentNode
 
                 // don't set select value unless an option for it exists
                 if( input.tagName === 'SELECT' ) {
-                    const optionExists = Array.from(input.options).some(option => option.value === values[key]);
+                    const optionExists = Array.from(input.options).some(option => option.value === currvals[key]);
                     if( optionExists ) {
-                        input.value = values[key];
+                        input.value = currvals[key];
                     }
 
-                // don't set the value for lightswitch, it should already be set, right?
+                // don't reset the value for lightswitch, it should already be set, right?
                 } else if( parent.classList.contains('lightswitch') ) {
-                    if( values[key] ) {
+                    if( currvals[key] ) {
                         parent.classList.add('on');
                         parent.setAttribute('aria-checked', 'true');
                     } else {
@@ -243,7 +264,7 @@ Craft.SelectPlusField.Controller = Garnish.Base.extend({
                     }
 
                 // all the other field types
-                } else { input.value = values[key]; }
+                } else { input.value = currvals[key]; }
 
             }
         }
@@ -351,10 +372,7 @@ Craft.SelectPlusField.Controller = Garnish.Base.extend({
         const $icons = $form.querySelectorAll( '.icon-picker--icon' ) ?? null;
         if( $icons ) {
             Array.from($icons).forEach((icon) => {
-                const parent = icon.closest('.icon-picker')
-                if( parent && parent.id ) {
-                    this.icons[parent.id] = parent.innerHTML
-                }
+                Craft.SelectPlusField.icons[icon.getAttribute('title')] = icon.innerHTML
             });
         }
     },
@@ -412,7 +430,7 @@ Craft.SelectPlusField.HelpModal = Garnish.Modal.extend({
 
         const content = Object.assign({}, {
             title   : 'Help',
-            moreurl : null,
+            helpurl : null,
             virtuals: false,
             html    : '',
         }, settings )
@@ -438,8 +456,8 @@ Craft.SelectPlusField.HelpModal = Garnish.Modal.extend({
         const $footer = $('<div class="footer"/>').appendTo(this.$form);
         const $mainBtnGroup = $('<div class="buttons right"/>').appendTo($footer);
 
-        if( content.moreurl ) {
-            $moreBtn = $('<a href="' + content.moreurl + '" target="_blank" class="btn submit">' + Craft.t('selectplus', 'More') + '</a>').appendTo($mainBtnGroup);
+        if( content.helpurl ) {
+            $moreBtn = $('<a href="' + content.helpurl + '" target="_blank" class="btn submit">' + Craft.t('selectplus', 'More') + '</a>').appendTo($mainBtnGroup);
             this.addListener($moreBtn, 'click', 'closing');
             this.addListener($moreBtn, 'keypress', function (e) {
                 if (e.key === 'Enter') { this.closing() }

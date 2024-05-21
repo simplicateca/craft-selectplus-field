@@ -4,10 +4,11 @@
         "value": "one",
         "tooltips": {
             "inline": "Lorem ipsum about **option one**...",
-            "template" : "_selectplus/help/basic.twig"
+            "helptwig" : "_selectplus/help/sample.twig"
         },
         "settings": {
-            "fizz": true
+            "fizz": true,
+            "bizz": ["bazz", "buzz"]
         },
         "virtuals": [{
             "type"          : "text",
@@ -17,8 +18,19 @@
             "instructions"  : "Notes about this field for the content editor",
             "fieldClass"    : "width-100"
         },{
+            "type"          : "select",
+            "name"          : "unique",
+            "default"       : "plain",
+            "label"         : "Choose from Select",
+            "instructions"  : "Fusce dapibus tellus lorem, in mattis quam dictum id.",
+            "options" : {
+                "plain"   : "Plain",
+                "fancy"   : "Fancy"
+            }
+        },{
             "type"          : "lightswitch",
             "name"          : "switch",
+            "default"       : "on",
             "value"         : "lit",
             "label"         : "Lightswitch",
             "instructions"  : "Turn me on and flip me off"
@@ -30,10 +42,11 @@
         "value": "two",
         "tooltips": {
             "inline": "Lorem ipsum about **option two**...",
-            "template" : "_selectplus/help/basic.twig"
+            "helptwig" : "_selectplus/help/sample.twig"
         },
         "settings": {
-            "fizz": false
+            "fizz": false,
+            "bizz": "bazz"
         },
         "virtuals": [{
             "type"          : "text",
@@ -43,8 +56,24 @@
             "instructions"  : "Notes about this field for the content editor",
             "fieldClass"    : "width-100"
         },{
+            "type"          : "select",
+            "name"          : "euqinu",
+            "default"       : "lorem",
+            "label"         : "Choose from Select",
+            "instructions"  : "Fusce dapibus tellus lorem, in mattis quam dictum id.",
+            "options" : [{
+                "value" : "lorem",
+                "label" : "Lorem ipsum",
+                "fizz"  : "boop"
+            },{
+                "value" : "dolor",
+                "label" : "Dolor sit amet",
+                "fizz"  : "bang"
+            }]
+        },{
             "type"          : "lightswitch",
             "name"          : "switch",
+            "default"       : "on",
             "value"         : "lit",
             "label"         : "Lightswitch",
             "instructions"  : "Turn me on and flip me off"
@@ -56,7 +85,7 @@
         "value": "three",
         "tooltips": {
             "inline": "Lorem ipsum about **option three**...",
-            "template" : "_selectplus/help/basic.twig"
+            "helptwig" : "_selectplus/help/sample.twig"
         },
         "settings": {
             "buzz": ["one", "two"]
@@ -71,6 +100,7 @@
         },{
             "type"          : "lightswitch",
             "name"          : "switch",
+            "default"       : "on",
             "value"         : "lit",
             "label"         : "Lightswitch",
             "instructions"  : "Turn me on and flip me off"

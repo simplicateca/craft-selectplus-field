@@ -81,7 +81,6 @@ class SelectPlusData extends \craft\base\Model
                 ?? $options->firstWhere( 'value' )
                 ?? [];
 
-        // $this->virtuals = json_decode( $this->json, true );
         if( empty($this->value) ) {
             $this->value = $current['value'] ?? '';
         }

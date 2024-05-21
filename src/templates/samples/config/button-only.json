@@ -1,11 +1,11 @@
 [
     {
-        "label": "Button Only Field Settings",
-        "value": "anything",
-        "button": true,
+        "label": "Button-Only Mode",
+        "value": "literally-anything",
+        "type" : "button",
         "tooltips": {
-            "inline": "Lorem ipsum about **option one**...",
-            "template" : "_selectplus/help/basic.twig"
+            "inline": "Click the button for **additional** configuration options",
+            "helptwig": "_selectplus/help/sample.twig"
         },
         "settings": {
             "fizz": true
