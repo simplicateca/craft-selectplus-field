@@ -1,22 +1,29 @@
 # SelectPlus - Craft CMS Custom Field
 
-
-    This is a Beta Release!
-
-## Overview
-
 SelectPlus is a JSON configured, custom field type plugin for Craft CMS 5+. It field presents like a standard Craft CMS [Dropdown Field](https://craftcms.com/docs/5.x/reference/field-types/dropdown.html) which itself makes use of the [Selectize JS library](https://selectize.dev/).
 
 Hiding under the hood of SelectPlus are a bunch of features aimed at improving the overall content [Author Experience (AX)](https://www.amazon.com/Author-Experience-Bridging-technology-management/dp/1937434427) and developer templating experience in Twig.
 
-### Features
+![](https://i.imgur.com/YUtManY.png)
 
-- Configured via `.json` files stored in the Craft CMS `templates` folder.
-- Psyche, they're still technically parsed as Twig files, which means you can get ~~silly~~ creative with advanced configurations (if/when the need arises).
-- Configurable **Inline Tooptips** and **Help/Documentation Modal**.
+
+    **This is a Beta Release!**
+
+
+## Overview
+
+- Configurable **Inline Tooptips** and **Help/Documentation Modal** for improving author experience.
 - Definable **Virtual Input Fields** that are only displayed via the `Settings` button next to the Dropdown field. Progressive disclosure FTW!
-- Each option in the Dropdown can have separate or shared virtual input fields.
-- Each option can also have shared or unique **Setting Tokens** that are made accessible in the Twig templates in addition to the selected field values.
+   - Supported field types include: Plain Text, Number, Radio Group, Lightswitch, Dropdown/Select, Money, Color, Icon, Date, Time
+- Each field option can have separate or shared virtual input fields.
+- Each option can also have shared or unique **Settings Tokens** that are made accessible in the Twig templates in addition to the selected field values.
+- Configure fields via `.json` files stored in the Craft CMS `templates` folder.
+- Since the config files are still technically parsed as Twig files, you can get ~~silly~~ creative with advanced configurations.
+
+
+![](https://i.imgur.com/Gi409Qe.png)
+
+![](https://i.imgur.com/GtnbOPi.png)
 
 
 ## Installation
@@ -25,26 +32,8 @@ This early release version is not currently available on the Craft Plugin store,
 
 **Requires Craft CMS 5+**
 
-Run `composer require simplicateca/selectplus:5.0.3-beta` and then enable the plugin from "Settings > Plugins"
+Run `composer require simplicateca/selectplus:5.0.4-beta` and then enable the plugin from "Settings > Plugins"
 
-
-## Features
-
-Think of SelectPlus like a CSS file for your dropdown fields.
-
-Instead of _class names & style settings_, SelectPlus manages **select options & extra settings** in external JSON files.
-
-The _"extra settings"_ associated with each `<option>` in the Dropdown field are entirely up to you.
-
-Being configurable via `.json` is just the start, you can also:
-
- - Present **documentation for indiviudal options** directly inside Craft in the form of tooltips, modal windows and links to external documentation (i.e. style guides, step-by-step instructions, etc).
-
- - Store **extra information** along side individual field options, so that you can centralize logic and move it out of twig templates and into more visible JSON configs.
-
- - Create **virtual input fields** that allow content editors to fine-tune their choices while minimalizing the overhead of cluttered UI's and single-use custom fields.
-
-![Sample Select Plus Field Layout](https://simplicate.nyc3.digitaloceanspaces.com/simplicate/assets/site/images/github/reference-field/reference-field-example.png)
 
 
 ## Configuration
@@ -99,28 +88,22 @@ Why would this ever be useful? Plenty of reasons!
 Because changes to the JSON file are immediately reflected in all instances of the field, you can use this to easily tweak any number of settings across many templates or entires without having to go into the Control Panel and edit/resave individual records.
 
 
-## Inline Option Documentation
+## Inline Documentation
 
-While Craft CMS allows for us to associate instructions with each field, these only apply to the field as a whole, and not to individual options.
+While Craft CMS allows for us to associate instructions with each field, these only apply to the field as a whole, and not to individual option selected within a Dropdown.
 
 SelectPlus fields allow for the creation of inline documentation for each option, which can be accessed via tooltips, modals, or links to external resources.
 
-Modal content can consist of escaped HTML strings stored within each JSON config or to file path to a Twig files within your `templates` folder.
+Modal content is loaded from a Twig file of your choice, and the Twig template can make use of
+dynamic information about the field and selected option to decide what kind of documentation to
+display.
 
-
-    TBD: Outline Different documentation settings in the JSON config
-
-
-## Advanced Features
-
-The SelectPlus field also includes a number of advanced features that can be used to create a more powerful and flexible content authoring experience.
+    TODO: Outline Different documentation settings in the JSON config
 
 
 ## Virtual Input Fields
 
-Like a regular Dropdown field, the SelectPlus field stores the value of the `<option>` selected by the user.
-
-However, it can also be used to store multiple additional inputs fields associated with each option.
+Like a regular Dropdown field, the SelectPlus field stores the value of the `<option>` selected by the user. However, it can also be used to store multiple additional inputs fields associated with each option.
 
 This can be useful for situations where the selected option has fine-tuning "follow-up questions", especially if the extra inputs are presentational rather than content model in nature, and likely don't warrant their own [Custom Field](https://craftcms.com/docs/5.x/system/fields.html).
 
@@ -129,7 +112,6 @@ Nobody likes a cluttered content model, and this can help keep things tidy.
 ### Field Configuration
 
 The configuration structure used for the virtual field config is identical to the one used by the Craft core `_includes/forms.twig` file. In fact, most of the fields are directly generated by that.
-
 
 ### Available Field Types
 

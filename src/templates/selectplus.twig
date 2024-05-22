@@ -35,8 +35,9 @@
 {% macro helpmodals( field, options ) %}
     {% for opt in options %}
         {% if opt.tooltips.helptwig ?? null %}
+            {% set helptitle = "Help for #{field.name} - #{opt.label}" %}
             <template
-                data-title="{{ opt.tooltips.help ?? "Help"|t }}"
+                data-title="{{ opt.tooltips.help ?? helptitle }}"
                 data-helpurl="{{ opt.tooltips.helpurl ?? null }}"
                 data-name='{{ "#{field.handle}__#{opt.value}__help" | snake | lower }}'
                 data-virtuals="{{ opt.virtuals ?? null ? 'true' : 'false' }}"
@@ -57,9 +58,10 @@
     {% import "_includes/forms" as forms %}
     {% for opt in options %}
         {% if opt.virtuals ?? null %}
+            {% set inputtitle = "Settings for #{field.name} - #{opt.label}" %}
             <template
                 data-name='{{ "#{field.handle}__#{opt.value}__virtuals" | snake | lower }}'
-                data-title="{{ opt.tooltips.input ?? "Settings"|t }}"
+                data-title="{{ opt.tooltips.input ?? inputtitle }}"
                 data-help="{{ opt.tooltips.helptwig ?? null ? 'true' : 'false' }}"
             >
                 {% if opt.tooltips.inputabove ?? null %}<p class='intro'>{{ opt.tooltips.inputabove | markdown | retconChange( 'p', false ) }}</p>{% endif %}
@@ -202,6 +204,9 @@
                 value       : field.value,
                 fieldClass  : field.fieldClass,
                 instructions: field.instructions,
+                data: {
+                    name: field.name,
+                }
             }) }}
         {% case "time" %}
             {{ forms.timeField({
@@ -210,6 +215,9 @@
                 value       : field.value,
                 fieldClass  : field.fieldClass,
                 instructions: field.instructions,
+                data: {
+                    name: field.name,
+                }
             }) }}
         {% case "money" %}
             {{ forms.moneyField({
@@ -218,6 +226,9 @@
                 value       : field.value,
                 fieldClass  : field.fieldClass,
                 instructions: field.instructions,
+                data: {
+                    name: field.name,
+                }
             }) }}
         {% case "icon" %}
             {{ forms.iconPickerField({
@@ -226,7 +237,7 @@
                 value       : field.value,
                 fieldClass  : field.fieldClass,
                 instructions: field.instructions,
-                data : {
+                data: {
                     name: field.name,
                 }
             }) }}

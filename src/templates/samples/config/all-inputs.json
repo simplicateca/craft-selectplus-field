@@ -1,8 +1,8 @@
 [{
-    "label": "All Input Fields",
+    "label": "All Virtual Inputs",
     "value": "allfields",
     "tooltips": {
-        "inline"    : "All available virtual input field types.",
+        "inline"    : "Demonstrate **all** virtual input [field types]().",
         "input"     : "Virtual Input Field Types",
         "inputabove": "These settings allow for **fine tuning the presentation** of the whatever content you're attaching this field to.",
         "inputbelow": "*Lorem ipsum dolor sit amet, consectetur adipiscing.*",
@@ -14,7 +14,7 @@
     "virtuals": [
         {
             "type"          : "text",
-            "name"          : "textFieldName",
+            "name"          : "plaintext",
             "default"       : "",
             "label"         : "Plain Text Input",
             "size"          : null,
@@ -25,21 +25,23 @@
         }
        ,{
             "type"          : "select",
-            "name"          : "selectFieldName",
-            "default"       : "plain",
-            "label"         : "Choose from Select",
-            "instructions"  : "Fusce dapibus tellus lorem, in mattis quam dictum id.",
+            "name"          : "simpleselect",
+            "default"       : "lorem",
+            "label"         : "Simple Select",
+            "instructions"  : "Fusce dapibus tellus lorem.",
             "options" : {
-                "plain"   : "Plain",
-                "fancy"   : "Fancy"
+                "lorem"   : "Lorem ipsum",
+                "dolor"   : "Dolor sit amet",
+                "consect" : "Consectetur adipiscing elit",
+                "neque"   : "Neque porro quisquam"
             }
         }
        ,{
             "type"          : "select",
-            "name"          : "complexFieldName",
+            "name"          : "complexselect",
             "default"       : "fancy",
-            "label"         : "Choose from Select",
-            "instructions"  : "Fusce dapibus tellus lorem, in mattis quam dictum id.",
+            "label"         : "Complex Select",
+            "instructions"  : "Fusce dapibus tellus lorem",
             "options" : [{
                 "value" : "plain",
                 "label" : "Plain",
@@ -54,7 +56,7 @@
         }
        ,{
             "type"          : "number",
-            "name"          : "numberFieldName",
+            "name"          : "guess",
             "default"       : "",
             "label"         : "Guess a Number",
             "size"          : null,
@@ -66,46 +68,52 @@
         }
        ,{
             "type"          : "lightswitch",
-            "name"          : "switchFieldName",
+            "name"          : "switch",
             "value"         : "lit",
             "default"       : "start 'off' unless any default value exists",
-            "label"         : "Lightswitch",
+            "label"         : "Switch",
             "instructions"  : "Notes about this field for the content editor"
         }
        ,{
             "type"          : "radiogroup",
             "label"         : "Radio Group",
-            "name"          : "radioFieldName",
-            "default"       : "",
-            "instructions"  : "Notes about this field for the content editor"
+            "name"          : "radio",
+            "default"       : "lorem",
+            "instructions"  : "Notes about this field for the content editor",
+            "options" : {
+                "lorem"   : "Lorem ipsum",
+                "dolor"   : "Dolor sit amet",
+                "consect" : "Consectetur adipiscing elit",
+                "neque"   : "Neque porro quisquam"
+            }
         }
        ,{
             "type"   : "icon",
-            "name"   : "icon",
-            "label"  : "Icon",
+            "name"   : "emblem",
+            "label"  : "Icon Seclector",
             "default": "bars",
             "instructions": "Icon ipsum dolor sit amet."
         }
        ,{
             "type"   : "time",
-            "name"   : "time",
-            "label"  : "Time",
+            "name"   : "start",
+            "label"  : "Start Time",
             "default": "",
             "fieldClass": "width-25",
             "instructions": "Ipsum chrono"
         }
        ,{
             "type"   : "date",
-            "name"   : "date",
-            "label"  : "Date",
+            "name"   : "deadline",
+            "label"  : "Deadline",
             "default": "",
             "fieldClass": "width-25",
             "instructions": "Lorem datus"
         }
        ,{
             "type"   : "money",
-            "name"   : "money",
-            "label"  : "Money",
+            "name"   : "amount",
+            "label"  : "Amount",
             "default": "",
             "instructions": "Money ipsum dolor sit amet."
         }

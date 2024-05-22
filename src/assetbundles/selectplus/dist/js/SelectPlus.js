@@ -164,7 +164,9 @@ Craft.SelectPlusField.Controller = Garnish.Base.extend({
     tagfor(type=null) {
         const handle = this.handle() + '_' + this.value() + '_' + type
         return handle
-            .replace(/\W/g, '')
+            .replace(/\W/g, ' ')
+            .replace(/\s+/g, ' ')
+            .replace(/\s/g, '_')
             .replace(/([a-z])([A-Z])/g, '$1_$2')
             .toLowerCase()
     },
@@ -253,9 +255,18 @@ Craft.SelectPlusField.Controller = Garnish.Base.extend({
                         input.value = currvals[key];
                     }
 
+                // set radio options as checked
+                } else if( input.tagName === 'INPUT' && input.type === 'radio' ) {
+                    if( input.value === currvals[key] ) {
+                        input.checked = true;
+                    } else {
+                        input.checked = false;
+                    }
+
                 // don't reset the value for lightswitch, it should already be set, right?
+                // but we do add the on class if the value is not empty
                 } else if( parent.classList.contains('lightswitch') ) {
-                    if( currvals[key] ) {
+                    if( currvals[key] && currvals[key] != "" ) {
                         parent.classList.add('on');
                         parent.setAttribute('aria-checked', 'true');
                     } else {
@@ -288,17 +299,34 @@ Craft.SelectPlusField.Controller = Garnish.Base.extend({
             .filter( str => str != null && str != "" )
     },
 
-    inputdata( fieldname, value ) {
-        const input = this.inputhtml().querySelector(`[name$="[${fieldname}]"]`);
-        if( input ) {
-            let data = {}
 
+    inputdata( fieldname, value ) {
+        let input = this.inputhtml().querySelector(`[name$="[\[fields\]${fieldname}]"]`)
+                 ?? this.inputhtml().querySelector(`[name$="fields[${fieldname}]"]`);
+
+        if( input && input.type == 'radio' ) {
+            const $inputs = this.inputhtml().querySelectorAll(`[name$="[\[fields\]${fieldname}]"]`)
+                         ?? this.inputhtml().querySelectorAll(`[name$="fields[${fieldname}]"]`);
+
+            input = null;
+            $inputs.forEach( elem => {
+                if( elem.value === value ) { input = elem; }
+            })
+        }
+
+        if( input ) {
+
+            const parent = input.parentNode
+
+            let data = {}
             if( input.tagName === 'SELECT' ) {
-                const opt = Array.from(input.options).some(option => option.value === value);
+                const opt = Array.from(input.options).find(option => option.value === value);
                 if( opt ) {
                     data = opt.dataset ?? {}
                     data[fieldname] = opt.value
                 }
+            } else if( input.tagName === 'INPUT' && parent.classList.contains('lightswitch') ) {
+                data[fieldname] = parent.classList.contains('on') ? input.value : '';
             } else {
                 data[fieldname] = input.value
             }
@@ -325,9 +353,7 @@ Craft.SelectPlusField.Controller = Garnish.Base.extend({
         // `settings` data associated with its newly ported value?
         let transfer = {};
         for( const key in portable ) {
-            transfer = Object.assign(transfer,
-                this.inputdata(key, portable[key])
-            )
+            transfer = Object.assign(transfer, this.inputdata(key, portable[key]) )
         }
 
         // combine the valid transferable values with the new defaults
@@ -384,16 +410,33 @@ Craft.SelectPlusField.Controller = Garnish.Base.extend({
 
         fields.forEach( (input) => {
             if( input.name ) {
-                const match = input.name.match(/\[([^[\]]+)\]$/)
+                const parent = input.parentNode
+                const $field = parent.closest('.field[data-attribute]')
+                const match  = input.name.match(/\[([^[\]]+)\]$/)
                 if( match ) {
-                    if( input.type === 'checkbox' || input.type === 'radiogroup' ) {
-                        values[match[1]] = input.checked ? input.value : values[match[1]];
+                    if( input.tagName === 'INPUT' && parent.classList.contains('lightswitch') ) {
+                        values[match[1]] = parent.classList.contains('on') ? input.value : '';
+                    } else if( input.tagName === 'INPUT' && parent.classList.contains('money-container') ) {
+                        values[$field.dataset.name] = input.value;
+                    } else if( input.tagName === 'INPUT' && parent.classList.contains('datewrapper') ) {
+                        if( input.name.endsWith('][locale]') || input.name.endsWith('][timezone]') ) {
+                        } else {
+                            values[$field.dataset.name] = input.value
+                        }
+                    } else if( input.tagName === 'INPUT' && parent.classList.contains('timewrapper') ) {
+                        if( input.name.endsWith('][locale]') || input.name.endsWith('][timezone]') ) {
+                        } else {
+                            values[$field.dataset.name] = input.value
+                        }
                     } else if( input.tagName === 'SELECT' ) {
                         const option = Object.assign({}, input.options[input.selectedIndex].dataset ?? null )
                         values[match[1]] = input.value;
                         values = Object.assign({}, values, option);
                     } else {
-                        values[match[1]] = input.value;
+                        if( input.name.endsWith('][locale]') || input.name.endsWith('][timezone]') ) {
+                        } else {
+                            values[match[1]] = input.value;
+                        }
                     }
                 }
             }
@@ -435,7 +478,7 @@ Craft.SelectPlusField.HelpModal = Garnish.Modal.extend({
             html    : '',
         }, settings )
 
-        this.setSettings({ draggable: true }, Garnish.Modal.defaults);
+        this.setSettings({}, Garnish.Modal.defaults);
 
         this.$form = $('<form class="modal fitted selectplus-modal selectplus-help" />').appendTo(Garnish.$bod);
 
@@ -517,7 +560,6 @@ Craft.SelectPlusField.VirtualInputs = Garnish.Modal.extend({
         }, settings )
 
         this.setSettings({
-            draggable: true,
             hideOnEsc: false,
             hideOnShadeClick: false,
         }, Garnish.Modal.defaults);

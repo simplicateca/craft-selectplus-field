@@ -3,10 +3,14 @@
 All notable changes to the Select Plus Custom Field Plugin for Craft CMS will be
 documented in this file. This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Version 5.0.1-beta] - 2024-05-02
 
-- Upgraded to Craft 5 support (from original unpublished Craft 4 version).
-- Added new options for virtual input field: icon, time, date, money, color.
+## [Version 5.0.4-beta] - 2024-05-22
+
+- Updated sample JSON files with more example fields
+- Fixed Radio & Lightswitch fields reverting to default values under certain conditions.
+- Fixed field naming error with Date, Time, and Money fields that was creating an illusion that the
+fields were reporting correct data.
+
 
 ## [Version 5.0.3-beta] - 2024-05-21
 
@@ -23,3 +27,9 @@ documented in this file. This project adheres to [Semantic Versioning](http://se
 - Fixed issue defaulting lightswitch fields to start 'on' (if not toggled off).
 - Fixed issue maintaining proper thumbnail preview (between page reloads) for icon virtual fields.
 - Removed requirement for `nystudio107/craft-emptycoalesce`.
+
+
+## [Version 5.0.1-beta] - 2024-05-02
+
+- Upgraded to Craft 5 support (from original unpublished Craft 4 version).
+- Added new options for virtual input field: icon, time, date, money, color.

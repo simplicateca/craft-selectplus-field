@@ -22,7 +22,7 @@
             "name"          : "unique",
             "default"       : "plain",
             "label"         : "Choose from Select",
-            "instructions"  : "Fusce dapibus tellus lorem, in mattis quam dictum id.",
+            "instructions"  : "Fusce dapibus tellus lorem",
             "options" : {
                 "plain"   : "Plain",
                 "fancy"   : "Fancy"
@@ -30,7 +30,6 @@
         },{
             "type"          : "lightswitch",
             "name"          : "switch",
-            "default"       : "on",
             "value"         : "lit",
             "label"         : "Lightswitch",
             "instructions"  : "Turn me on and flip me off"
@@ -60,7 +59,7 @@
             "name"          : "euqinu",
             "default"       : "lorem",
             "label"         : "Choose from Select",
-            "instructions"  : "Fusce dapibus tellus lorem, in mattis quam dictum id.",
+            "instructions"  : "Fusce dapibus tellus lorem.",
             "options" : [{
                 "value" : "lorem",
                 "label" : "Lorem ipsum",
@@ -73,7 +72,6 @@
         },{
             "type"          : "lightswitch",
             "name"          : "switch",
-            "default"       : "on",
             "value"         : "lit",
             "label"         : "Lightswitch",
             "instructions"  : "Turn me on and flip me off"
@@ -100,7 +98,6 @@
         },{
             "type"          : "lightswitch",
             "name"          : "switch",
-            "default"       : "on",
             "value"         : "lit",
             "label"         : "Lightswitch",
             "instructions"  : "Turn me on and flip me off"

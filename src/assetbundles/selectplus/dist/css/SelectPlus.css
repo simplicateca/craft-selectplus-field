@@ -156,6 +156,19 @@ form.modal.selectplus-help .body {
     max-width: 680px;
 }
 
+form.modal.selectplus-modal .body .settings-grid {
+    padding: 1rem 0;
+    gap: 2rem;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+form.modal.selectplus-modal .body .settings-grid code {
+    background: #eee;
+    padding: 0.5rem;
+    display: block;
+}
+
 form.modal.selectplus-virtuals .body {
     height: 100%;
     max-height: calc(100% - 100px);
