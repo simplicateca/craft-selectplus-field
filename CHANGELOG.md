@@ -3,13 +3,16 @@
 All notable changes to the Select Plus Custom Field Plugin for Craft CMS will be
 documented in this file. This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Version 5.0.5-beta] - 2024-08-20
+
+- Properly implemented namespaces on fields
+- Fixed bug where the virtual fields modal wasn't always properly updating internal fields.
 
 ## [Version 5.0.4-beta] - 2024-05-22
 
 - Updated sample JSON files with more example fields
 - Fixed Radio & Lightswitch fields reverting to default values under certain conditions.
-- Fixed field naming error with Date, Time, and Money fields that was creating an illusion that the
-fields were reporting correct data.
+- Fixed field naming error with Date, Time, and Money fields that was creating an illusion that the fields were reporting correct data.
 
 
 ## [Version 5.0.3-beta] - 2024-05-21

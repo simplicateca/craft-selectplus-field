@@ -35,8 +35,7 @@
                     highlight: false
                 }
             }) }}
-
-            {{ selectplus.registerjs( namespace, fieldid ) }}
+            {{ selectplus.registerjs( namespace|id, fieldid ) }}
 
             <a class="btn btn-gear" role="button" tabindex="0"></a>
         {% endif %}
@@ -53,6 +52,6 @@
 
 {## <template> content for modals & tooltips
 {-------------------------------------------------------------------------------------##}
-{{ selectplus.virtualmodals( field, options, virtvals ) }}
-{{ selectplus.helpmodals( field, options ) }}
-{{ selectplus.inlinetips( field, options ) }}
+{{ selectplus.virtualmodals( namespace|id, field, options, virtvals ) }}
+{{ selectplus.helpmodals( namespace|id, field, options ) }}
+{{ selectplus.inlinetips( namespace|id, field, options ) }}

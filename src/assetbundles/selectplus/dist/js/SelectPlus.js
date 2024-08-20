@@ -15,8 +15,8 @@ Craft.SelectPlusField = {
     icons: {},
     $controllers: {},
 
-    setup(selectize) {
-        const $controller = new Craft.SelectPlusField.Controller(selectize)
+    setup(selectize, namespace) {
+        const $controller = new Craft.SelectPlusField.Controller(selectize, namespace)
         const $selectize  = $controller.selectize()
 
         if( $selectize.tagName == 'SELECT' ) {
@@ -85,9 +85,11 @@ Craft.SelectPlusField.Controller = Garnish.Base.extend({
     $spf: null,
     $button: null,
 
-    init(elem) {
+    init(elem, namespace) {
         this.$spf = elem ? elem.closest('.selectplus-field') : null
         if( this.$spf ) {
+
+            this.$spf.setAttribute('data-namespace', namespace)
 
             const $button = new Craft.SelectPlusField.Button(this)
 
@@ -109,6 +111,10 @@ Craft.SelectPlusField.Controller = Garnish.Base.extend({
 
     handle() {
         return this.$spf.dataset.field
+    },
+
+    namespace() {
+        return this.$spf.dataset.namespace
     },
 
     selectize() {
@@ -158,7 +164,7 @@ Craft.SelectPlusField.Controller = Garnish.Base.extend({
     },
 
     template(name) {
-        return document.querySelector('template[data-name=' + name + ']' ) ?? null
+        return document.querySelector('template[data-name=' + name + '][data-namespace=' + this.namespace() + ']' ) ?? null
     },
 
     tagfor(type=null) {

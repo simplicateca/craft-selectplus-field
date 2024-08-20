@@ -5,8 +5,8 @@
 {% macro registerjs( namespace, fieldid ) %}
     {% js %}
         Craft.SelectPlusField
-            .waitfor('select#{{"#{namespace|id}-#{fieldid}"}}.selectized')
-            .then( ($select) => { Craft.SelectPlusField.setup( $select ) });
+            .waitfor('select#{{"#{namespace}-#{fieldid}"}}.selectized')
+            .then( ($select) => { Craft.SelectPlusField.setup( $select, '{{namespace}}' ) });
     {% endjs %}
 {% endmacro %}
 {##
@@ -16,12 +16,15 @@
 
 {## Tooltips & Help Modal Launchers
 {-------------------------------------------------------------------------------------##}
-{% macro inlinetips( field, options ) %}
+{% macro inlinetips( namespace, field, options ) %}
     {% for opt in options %}
         {% set value  = opt.value ?? null %}
         {% set inline = opt.tooltips.inline ?? null %}
         {% if value and inline %}
-            <template data-name='{{ "#{field.handle}__#{opt.value}__inline" | snake | lower }}'>
+            <template
+                data-namespace="{{ namespace }}"
+                data-name='{{ "#{field.handle}__#{opt.value}__inline" | snake | lower }}'
+            >
                 <span class="tip">{{ raw( inline | markdown | widont ) }}</span>
             </template>
         {% endif %}
@@ -32,11 +35,12 @@
 
 {## Help Doc Modal Templates
 {-------------------------------------------------------------------------------------##}
-{% macro helpmodals( field, options ) %}
+{% macro helpmodals( namespace, field, options ) %}
     {% for opt in options %}
         {% if opt.tooltips.helptwig ?? null %}
             {% set helptitle = "Help for #{field.name} - #{opt.label}" %}
             <template
+                data-namespace="{{ namespace }}"
                 data-title="{{ opt.tooltips.help ?? helptitle }}"
                 data-helpurl="{{ opt.tooltips.helpurl ?? null }}"
                 data-name='{{ "#{field.handle}__#{opt.value}__help" | snake | lower }}'
@@ -50,7 +54,7 @@
 
 {## Virtual Field Modal Templates
 {-------------------------------------------------------------------------------------##}
-{% macro virtualmodals( field, options, json ) %}
+{% macro virtualmodals( namespace, field, options, json ) %}
 
     {## decode JSON string if necessary ##}
     {% set json = ( json is string ) ? json | json_decode : json %}
@@ -60,6 +64,7 @@
         {% if opt.virtuals ?? null %}
             {% set inputtitle = "Settings for #{field.name} - #{opt.label}" %}
             <template
+                data-namespace="{{ namespace }}"
                 data-name='{{ "#{field.handle}__#{opt.value}__virtuals" | snake | lower }}'
                 data-title="{{ opt.tooltips.input ?? inputtitle }}"
                 data-help="{{ opt.tooltips.helptwig ?? null ? 'true' : 'false' }}"

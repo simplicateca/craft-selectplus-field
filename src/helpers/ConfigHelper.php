@@ -96,17 +96,20 @@ class ConfigHelper
         // or a super table field that is itself attached to an entry element?
         $owner = $element->primaryOwner ?? $element;
 
+        $subname = $element->type->name   ?? $element->volume->name   ?? $element->site->name   ?? null;
+        $subtype = $element->type->handle ?? $element->volume->handle ?? $element->site->handle ?? null;
+
         return [
-            'name'    => $element->type->name    ?? null,
-            'type'    => $element->type->handle  ?? null,
+            'name'    => $subname,
+            'type'    => $subtype,
             'field'   => $element->field->handle ?? null,
-            'element' => $element->elementType   ?? null,
+            'element' => (string) get_class( $element ),
             'owner'   => [
                 'site'    => $owner->site->handle    ?? null,
                 'type'    => $owner->type->handle    ?? null,
                 'level'   => $owner->level           ?? null,
                 'section' => $owner->section->handle ?? null,
-                'element' => $owner->elementType     ?? null,
+                'element' => (string) get_class( $owner ),
             ],
         ];
     }

@@ -12,9 +12,15 @@ use simplicateca\selectplus\helpers\ConfigHelper;
 class SelectPlusData extends \craft\base\Model
 {
     /**
-     * @var string The primary value of the selected option
+     * @var string The value of the selected option
      */
     public string $value;
+
+
+    /**
+     * @var string The label of the selected option
+     */
+    public string $label;
 
 
     /**
@@ -55,6 +61,7 @@ class SelectPlusData extends \craft\base\Model
 
         $this->json    = $data['json'];
         $this->value   = $data['value'];
+        $this->label   = $data['value'];
         $this->config  = $data['config'];
         $this->element = ConfigHelper::minimize( $data['element'] );
         $this->options = ConfigHelper::load( $this->config, $this->element );
@@ -84,6 +91,9 @@ class SelectPlusData extends \craft\base\Model
         if( empty($this->value) ) {
             $this->value = $current['value'] ?? '';
         }
+
+        // save the label
+        $this->label = $current['label'] ?? $this->value;
 
         // get the default & current values for any virtual inputs
         $settings = $current['settings'] ?? [];
@@ -131,6 +141,7 @@ class SelectPlusData extends \craft\base\Model
         return array_keys($keys) !== $keys;
     }
 
+    
     private function _defaults( $virtuals = [] ) {
 
         // do a first pass to get all the values
